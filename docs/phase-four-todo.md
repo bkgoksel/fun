@@ -185,7 +185,7 @@ This document outlines the tasks required to deploy the Storied Recipes project 
     - TODO: Add permissions for S3 if recipe data is stored there (Phase 4, Step 4).
     - TODO: Add permissions for Secrets Manager if API keys/Redis AUTH token are stored there (Phase 4, Step 3).
     - TODO: Add `AWSLambdaVPCAccessExecutionRole` if Lambda needs VPC access for ElastiCache (Phase 4, Step 3).
-  - **TODO: Packaging Lambda Code (Manual/Scripted Step):**
+  - **DONE: Packaging Lambda Code (Manual/Scripted Step):**
     - **Ensure `zip` utility is installed.** (e.g., on Debian/Ubuntu: `sudo apt update && sudo apt install zip -y`).
     - **Delete any existing empty/invalid `terraform/lambda_package.zip` file first** (e.g., `rm -f terraform/lambda_package.zip`).
     - Create a zip file of the Node.js application (e.g., from project root: `zip -r terraform/lambda_package.zip . -x './public/*' -x './data/*' -x './terraform/*' -x './docs/*' -x '.git*' -x '*.md' -x 'node_modules/*'`). Adjust exclusion patterns as needed. Ensure `lambda.js` (or your handler entry point) is at the root of the zip. Run `npm install --omit=dev` before zipping if `node_modules` are included.
@@ -200,7 +200,7 @@ This document outlines the tasks required to deploy the Storied Recipes project 
       - `REDIS_HOST = ""` (placeholder - to be updated in Phase 4, Step 3).
       - `REDIS_PORT = ""` (placeholder - to be updated in Phase 4, Step 3).
       - `REDIS_AUTH_TOKEN_SECRET_ARN = ""` (placeholder - to be updated in Phase 4, Step 3 if using Secrets Manager for token).
-    - TODO: Add VPC configuration for ElastiCache access (Phase 4, Step 3).
+    - DONE: Add VPC configuration for ElastiCache access (Phase 4, Step 3).
   - **DONE: `aws_api_gateway_rest_api`:** Creates the REST API.
   - **DONE: `aws_api_gateway_resource`:** Defines `/{proxy+}` resource.
   - **DONE: `aws_api_gateway_method`:** Defines `ANY` method for `/{proxy+}`.
@@ -216,11 +216,11 @@ This document outlines the tasks required to deploy the Storied Recipes project 
 
 **Testing:**
 
-- **TODO:** `terraform plan` and `terraform apply` complete successfully.
-- **TODO:** Lambda function, API Gateway, and IAM roles are created in AWS.
-- **TODO:** Cloudflare DNS record for the API is created/updated.
+- **DONE:** `terraform plan` and `terraform apply` complete successfully.
+- **DONE:** Lambda function, API Gateway, and IAM roles are created in AWS.
+- **DONE:** Cloudflare DNS record for the API is created/updated.
 - **TODO:** After packaging and deploying Lambda code, test API endpoints (e.g., `https://api.yourdomain.com/api/recipes`, `https://api.yourdomain.com/api/recipe/some-id/initial`) using `curl` or Postman.
-- **TODO:** Check Lambda logs in CloudWatch for any errors.
+- **DONE:** Check Lambda logs in CloudWatch for any errors.
 
 ## 3. Redis Deployment (AWS ElastiCache for Redis)
 
@@ -269,9 +269,9 @@ This document outlines the tasks required to deploy the Storied Recipes project 
 
 **Testing:**
 
-- **TODO:** `terraform plan` and `terraform apply` complete successfully, creating security groups and ElastiCache resources.
-- **TODO:** Lambda function is configured to run in the VPC and can connect to ElastiCache.
-- **TODO:** Backend API successfully connects to ElastiCache Redis (check Lambda logs after API calls that involve caching, ensure no timeout errors).
+- **DONE:** `terraform plan` and `terraform apply` complete successfully, creating security groups and ElastiCache resources.
+- **DONE:** Lambda function is configured to run in the VPC and can connect to ElastiCache.
+- **DONE:** Backend API successfully connects to ElastiCache Redis (check Lambda logs after API calls that involve caching, ensure no timeout errors).
 - **TODO:** Data is being cached and retrieved from ElastiCache (can be verified by observing API response times, `source` field if implemented, or connecting to Redis via an EC2 instance in the same VPC for debugging).
 
 ## 4. Recipe Data Deployment
