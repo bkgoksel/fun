@@ -79,7 +79,7 @@ This document outlines the tasks required to implement the frontend core functio
 **Testing:**
 
 - **DONE:** Scroll detection logic has been added to `public/js/recipe.js`. (Task 3 Action Item completed)
-- **TODO:** Ensure the initial story segment loaded in Task 2 is long enough to allow scrolling. (If not, temporarily add more static text to `story-content` in `public/recipe.html` or adjust `min-height` of `#story-content` in `public/css/style.css` for testing purposes).
+- **DONE:** The `initialStorySeed` in `data/recipes/grandmother-secret-cookies.json` has been lengthened to help ensure scrolling is necessary for testing. The `min-height` of `#story-content` in `public/css/style.css` is currently `100px` and can be adjusted if further needed.
 - **TODO:** Open `public/recipe.html` in a browser (ensure backend server is running).
 - **TODO:** Open the browser's developer console.
 - **TODO:** Scroll down the page.
