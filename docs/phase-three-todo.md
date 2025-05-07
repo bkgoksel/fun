@@ -34,29 +34,31 @@ This document outlines the tasks required to implement UX refinements and polish
     *   Check Redis to see pre-generated segments.
     *   Measure response times for `/continue` requests to see if pre-generation improves them.
 
-## 2. Story Coherence Tuning
+## 2. Story Coherence Tuning (SKIPPED)
 
 **Goal:** Optimize the balance between story coherence, LLM input limits, and cost by adjusting the context sent to the LLM.
 
-**Actions & Files:**
+**Decision:** Skipped as current behavior is deemed good enough.
 
-*   **TODO: Modify `public/js/recipe.js`:**
+**Original Actions & Files (For Reference):**
+
+*   **Modify `public/js/recipe.js`:**
     *   **Purpose:** Adjust client-side context length.
     *   **Content:**
-        *   Experiment with the `CHARS_FOR_CONTEXT` constant. Try increasing it (e.g., to 1500, 2000 characters) and decreasing it (e.g., to 500 characters).
-*   **TODO: Modify `routes/recipes.js` (and `services/llmService.js`):**
+        *   Experiment with the `CHARS_FOR_CONTEXT` constant.
+*   **Modify `routes/recipes.js` (and `services/llmService.js`):**
     *   **Purpose:** Adapt backend to potentially handle different context lengths or implement more sophisticated context management.
     *   **Content:**
         *   Ensure the backend correctly uses the full context provided by the client.
-        *   **(Advanced/Optional):** If very long contexts become problematic for the LLM, consider backend strategies like summarizing earlier parts of the story to maintain relevance while fitting within token limits.
+        *   **(Advanced/Optional):** Backend context summarization.
 
-**Testing:**
+**Original Testing (For Reference):**
 
-*   **TODO:** For various `CHARS_FOR_CONTEXT` values:
-    *   Generate very long stories (e.g., scroll for several minutes).
-    *   Read through the generated stories to evaluate their narrative coherence, consistency, and whether they "remember" earlier plot points.
-    *   Note any degradation in LLM response time or quality with very long contexts.
-*   **TODO:** If backend context summarization is implemented, verify its effectiveness.
+*   For various `CHARS_FOR_CONTEXT` values:
+    *   Generate very long stories.
+    *   Evaluate narrative coherence, consistency.
+    *   Note degradation in LLM response time or quality.
+*   If backend context summarization is implemented, verify its effectiveness.
 
 ## 3. Loading Indicators and Error Handling (Frontend)
 
