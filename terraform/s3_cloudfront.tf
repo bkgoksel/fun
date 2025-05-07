@@ -122,10 +122,13 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
+    min_ttl                = 0
+    default_ttl            = 1
+    max_ttl                = 1
     # Using a managed cache policy for S3 static hosting.
     # This policy is "Managed-CachingOptimized" (ID: 658327ea-f89d-4fab-a63d-7e88639e58f6)
     # It handles forwarding of headers, cookies, and query strings appropriately for caching.
-    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    # cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Removed for development TTLs
     # min_ttl, default_ttl, max_ttl are overridden by the cache policy.
     # If you need custom TTLs, you might need to create a custom cache policy.
   }
