@@ -18,7 +18,7 @@ This document outlines the tasks required to deploy the Storied Recipes project 
 - **DONE: Create Terraform Project Directory:**
   - E.g., `mkdir terraform` at the project root.
   - All subsequent Terraform files (`.tf`) will reside here.
-- **TODO: Create `terraform/providers.tf`:**
+- **DONE: Create `terraform/providers.tf`:**
 
   - **Purpose:** Define required Terraform providers (AWS, Cloudflare).
   - **Content:**
@@ -56,7 +56,7 @@ This document outlines the tasks required to deploy the Storied Recipes project 
     }
     ```
 
-- **TODO: Create `terraform/variables.tf`:**
+- **DONE: Create `terraform/variables.tf`:**
 
   - **Purpose:** Define input variables for the Terraform configuration.
   - **Content (example):**
@@ -107,7 +107,7 @@ This document outlines the tasks required to deploy the Storied Recipes project 
     }
     ```
 
-- **TODO: Create `terraform/outputs.tf` (initially empty or with placeholders):**
+- **DONE: Create `terraform/outputs.tf` (initially empty or with placeholders):**
   - **Purpose:** Define outputs from the Terraform configuration (e.g., CloudFront URL, API Gateway URL).
 - **TODO: Initialize Terraform:**
   - Run `terraform init` in the `terraform` directory.
