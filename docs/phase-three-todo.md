@@ -142,11 +142,11 @@ This document outlines the tasks required to implement UX refinements and polish
 
 **Testing:**
 
-*   **TODO:** Verify the new `/api/recipes` endpoint correctly returns a list of available recipes (IDs and titles).
-*   **TODO:** Open `public/index.html` (or `/` if server configured to serve it as default). Verify it lists all recipes from the `data/recipes/` directory.
-*   **TODO:** Click on a recipe link from `index.html`. Verify it navigates to `recipe.html?id={recipe_id}` and that the correct recipe's title and initial story are loaded.
-*   **TODO:** Test accessing `recipe.html` without an `id` parameter – verify the chosen fallback behavior (default recipe, error, or redirect).
-*   **TODO:** Test accessing `recipe.html` with an invalid/non-existent `id` – verify graceful error handling (e.g., "Recipe not found" message).
+*   **DONE:** Verify the new `/api/recipes` endpoint correctly returns a list of available recipes (IDs and titles).
+*   **DONE:** Open `public/index.html` (or `/` if server configured to serve it as default). Verify it lists all recipes from the `data/recipes/` directory.
+*   **DONE:** Click on a recipe link from `index.html`. Verify it navigates to `recipe.html?id={recipe_id}` and that the correct recipe's title and initial story are loaded.
+*   **DONE:** Test accessing `recipe.html` without an `id` parameter – verify the chosen fallback behavior (default recipe, error, or redirect).
+*   **DONE:** Test accessing `recipe.html` with an invalid/non-existent `id` – verify graceful error handling (e.g., "Recipe not found" message).
 
 ---
 
