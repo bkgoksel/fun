@@ -188,7 +188,7 @@ This document outlines the tasks required to deploy the Storied Recipes project 
   - **DONE: Packaging Lambda Code (Manual/Scripted Step):**
     - **Ensure `zip` utility is installed.** (e.g., on Debian/Ubuntu: `sudo apt update && sudo apt install zip -y`).
     - **Delete any existing empty/invalid `terraform/lambda_package.zip` file first** (e.g., `rm -f terraform/lambda_package.zip`).
-    - Create a zip file of the Node.js application (e.g., from project root: `zip -r terraform/lambda_package.zip . -x './public/*' -x './data/*' -x './terraform/*' -x './docs/*' -x '.git*' -x '*.md' -x 'node_modules/*'`). Adjust exclusion patterns as needed. Ensure `lambda.js` (or your handler entry point) is at the root of the zip. Run `npm install --omit=dev` before zipping if `node_modules` are included.
+    - Create a zip file of the Node.js application (e.g., from project root: `zip -r terraform/lambda_package.zip . -x './public/*' -x './terraform/*' -x './docs/*' -x '.git*' -x '*.md' -x 'node_modules/*'`). Adjust exclusion patterns as needed. Ensure `lambda.js` (or your handler entry point) is at the root of the zip. Run `npm install --omit=dev` before zipping if `node_modules` are included.
     - Place `lambda_package.zip` in the `terraform/` directory.
   - **DONE: `aws_lambda_function`:**
     - References the created IAM role.
@@ -280,8 +280,8 @@ This document outlines the tasks required to deploy the Storied Recipes project 
 
 **Actions & Files:**
 
-- **Option A: Include in Lambda Deployment Package:**
-  - **TODO: Modify Lambda Packaging Script:** Ensure `data/recipes/` directory is included in the `lambda_package.zip`.
+- **DONE: Option A: Include in Lambda Deployment Package:**
+  - **DONE: Modify Lambda Packaging Script:** Ensure `data/recipes/` directory is included in the `lambda_package.zip`.
   - **TODO: Backend Code (`server.js`, `routes/recipes.js`):** Ensure file paths to `data/recipes/` are correct relative to the Lambda execution environment (e.g., `path.join(__dirname, 'data', 'recipes')` might need adjustment if the zip structure changes).
 - **Option B: Store in a Separate S3 Bucket (More flexible for updates):**
   - **TODO: Terraform (`terraform/s3_recipe_data.tf`):**
