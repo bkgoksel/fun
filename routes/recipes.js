@@ -1,7 +1,9 @@
 const express = require('express');
 const fs = require('fs').promises; // Use promises version of fs
 const path = require('path');
-const { generateStoryContinuation } = require('../services/llmService'); // Import the LLM service
+const crypto = require('crypto'); // For hashing context for cache key
+const { generateStoryContinuation } = require('../services/llmService');
+const cache = require('../services/cacheService'); // Import the cache service
 
 const router = express.Router();
 
@@ -32,25 +34,46 @@ router.get('/recipe/:recipeId/initial', async (req, res, next) => {
 
 // GET /api/recipe/:recipeId/continue
 router.get('/recipe/:recipeId/continue', async (req, res, next) => {
-    const { recipeId } = req.params; // recipeId might be used later for context or specific prompts
+    const { recipeId } = req.params;
     const { context } = req.query;
 
     if (!context) {
         return res.status(400).json({ message: "Query parameter 'context' is required." });
     }
 
+    // Generate a cache key based on recipeId and a hash of the context
+    const contextHash = crypto.createHash('sha256').update(context).digest('hex');
+    const cacheKey = `recipe:${recipeId}:contextHash:${contextHash}`;
+    const CACHE_EXPIRATION_SECONDS = 3600; // 1 hour
+
     try {
-        // For now, we directly use the context as the prompt.
-        // Later, this could be combined with recipe-specific instructions or the initial seed.
-        const promptText = context; 
+        // 1. Attempt to get data from cache
+        const cachedData = await cache.get(cacheKey);
+        if (cachedData) {
+            console.log(`Cache hit for key: ${cacheKey}`);
+            return res.json({
+                recipeId: recipeId,
+                continuation: cachedData.continuation,
+                source: 'cache'
+            });
+        }
+
+        console.log(`Cache miss for key: ${cacheKey}. Fetching from LLM.`);
+        // 2. If cache miss, call LLM
+        const promptText = context;
         const storySegment = await generateStoryContinuation(promptText);
+
+        // 3. Store LLM response in cache
+        await cache.set(cacheKey, { continuation: storySegment }, CACHE_EXPIRATION_SECONDS);
+        console.log(`Stored LLM response in cache for key: ${cacheKey}`);
+
         res.json({
             recipeId: recipeId,
-            continuation: storySegment
+            continuation: storySegment,
+            source: 'llm'
         });
     } catch (error) {
-        console.error(`Error generating story continuation for recipe ${recipeId}:`, error);
-        // Pass error to the next error-handling middleware
+        console.error(`Error in /continue endpoint for recipe ${recipeId}:`, error);
         next(error);
     }
 });
