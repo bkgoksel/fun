@@ -1,6 +1,14 @@
 const redis = require('redis');
 
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+// Construct Redis URL from environment variables if available, otherwise default to localhost
+const redisHost = process.env.REDIS_HOST;
+const redisPort = process.env.REDIS_PORT;
+const redisUrl = (redisHost && redisPort) 
+    ? `redis://${redisHost}:${redisPort}` 
+    : 'redis://localhost:6379';
+
+console.log(`Using Redis URL: ${redisUrl}`); // Log the URL being used
+
 let client;
 let connectionPromise;
 
