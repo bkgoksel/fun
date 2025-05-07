@@ -2,6 +2,7 @@ require('dotenv').config(); // Load environment variables from .env file at the 
 
 const express = require("express");
 const path = require("path"); // Import path module
+const fs = require('fs').promises; // Import fs promises
 const recipeRoutes = require("./routes/recipes");
 
 const app = express();
