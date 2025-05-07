@@ -10,6 +10,9 @@ const PORT = process.env.PORT || 3000;
 // Middleware to parse JSON bodies (if you plan to accept JSON in POST/PUT requests later)
 app.use(express.json());
 
+// Serve static files from the "public" directory
+app.use(express.static(path.join(__dirname, "public")));
+
 // Mount the recipe routes
 app.use("/api", recipeRoutes);
 
