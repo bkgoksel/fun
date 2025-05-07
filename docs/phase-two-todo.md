@@ -18,8 +18,8 @@ This document outlines the tasks required to implement the frontend core functio
 
 **Testing:**
 
-*   **TODO:** Create a `public` directory if it doesn't exist.
-*   **TODO:** Create the `public/recipe.html` file with the basic structure.
+*   **DONE:** Create `public`, `public/css`, and `public/js` directories. (Shell command `mkdir -p public/css public/js` will be suggested).
+*   **DONE:** Create the `public/recipe.html` file with the basic structure. (Linked `public/css/style.css` also created).
 *   **TODO:** Open `public/recipe.html` directly in a web browser.
 *   **TODO:** Verify that the title area, an empty story container, and the "Ingredients" / "Directions" headers are visible and laid out as expected.
 
@@ -53,7 +53,7 @@ This document outlines the tasks required to implement the frontend core functio
       "initialStorySegment": "It was a dark and stormy night when Grandmother decided to bake..."
     }
     ```
-*   **TODO:** Create `public/js/` directory if it doesn't exist.
+*   **DONE:** Create `public/js/` directory. (Handled by `mkdir -p public/css public/js` during Task 1).
 *   **TODO:** Create `public/js/recipe.js` with the fetching and rendering logic.
 *   **TODO:** Open `public/recipe.html` in a browser.
 *   **TODO:** Verify that the recipe title (e.g., "Grandmother's Secret Cookies") is displayed.
