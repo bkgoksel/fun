@@ -23,7 +23,10 @@ async function generateStoryContinuation(promptText) {
         // Check Mistral's documentation for the most current and appropriate model identifiers.
         const chatResponse = await client.chat.complete({ // Corrected method call
             model: 'mistral-tiny', // Example model, adjust as needed. 'open-mistral-7b' is another common one.
-            messages: [{ role: 'user', content: promptText }],
+            messages: [
+                { role: 'system', content: "You are a master storyteller. Your task is to seamlessly continue the story provided by the user. Do not add any introductory phrases, conversational filler, or remarks like 'Here's the continuation:'. Directly output the next part of the story, picking up exactly where the user's text left off. Ensure the continuation flows naturally from the provided context." },
+                { role: 'user', content: promptText }
+            ],
         });
 
         if (chatResponse && chatResponse.choices && chatResponse.choices.length > 0 && chatResponse.choices[0].message && chatResponse.choices[0].message.content) {
