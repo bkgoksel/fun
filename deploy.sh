@@ -19,7 +19,7 @@ rm -f terraform/lambda_package.zip
 
 # Create new lambda package from project root
 echo "Creating lambda_package.zip..."
-zip -r terraform/lambda_package.zip . -x './public/*' -x './terraform/*' -x './docs/*' -x './.git*' -x '*.md' -x 'node_modules/*' -x 'deploy.sh'
+zip -r terraform/lambda_package.zip . -x './public/*' -x './terraform/*' -x './docs/*' -x './.git*' -x '*.md' -x 'deploy.sh'
 
 echo "Lambda function packaged successfully."
 
@@ -34,8 +34,8 @@ echo "Syncing frontend files to S3..."
 S3_BUCKET_NAME=$(terraform -chdir=terraform output -raw s3_site_bucket_name)
 
 if [ -z "$S3_BUCKET_NAME" ]; then
-    echo "Error: Could not retrieve S3 bucket name from Terraform outputs."
-    exit 1
+  echo "Error: Could not retrieve S3 bucket name from Terraform outputs."
+  exit 1
 fi
 
 echo "Target S3 bucket: s3://${S3_BUCKET_NAME}"
@@ -47,16 +47,16 @@ echo "Deployment completed successfully!"
 # Output API Gateway URL for convenience
 API_URL=$(terraform -chdir=terraform output -raw api_gateway_invoke_url)
 if [ -n "$API_URL" ]; then
-    echo "API Gateway Invoke URL: ${API_URL}"
+  echo "API Gateway Invoke URL: ${API_URL}"
 fi
 
 # Output Website URL for convenience
 WEBSITE_URL_WWW=$(terraform -chdir=terraform output -raw website_url_www)
 if [ -n "$WEBSITE_URL_WWW" ]; then
-    echo "Website URL (www): ${WEBSITE_URL_WWW}"
+  echo "Website URL (www): ${WEBSITE_URL_WWW}"
 fi
 
 WEBSITE_URL_APEX=$(terraform -chdir=terraform output -raw website_url_apex)
 if [ -n "$WEBSITE_URL_APEX" ]; then
-    echo "Website URL (apex): ${WEBSITE_URL_APEX}"
+  echo "Website URL (apex): ${WEBSITE_URL_APEX}"
 fi

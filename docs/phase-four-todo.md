@@ -188,7 +188,7 @@ This document outlines the tasks required to deploy the Storied Recipes project 
   - **DONE: Packaging Lambda Code (Manual/Scripted Step):**
     - **Ensure `zip` utility is installed.** (e.g., on Debian/Ubuntu: `sudo apt update && sudo apt install zip -y`).
     - **Delete any existing empty/invalid `terraform/lambda_package.zip` file first** (e.g., `rm -f terraform/lambda_package.zip`).
-    - Create a zip file of the Node.js application (e.g., from project root: `zip -r terraform/lambda_package.zip . -x './public/*' -x './terraform/*' -x './docs/*' -x '.git*' -x '*.md'`). Adjust exclusion patterns as needed. Ensure `lambda.js` (or your handler entry point) is at the root of the zip. Run `npm install --omit=dev` before zipping if `node_modules` are included.
+    - Create a zip file of the Node.js application (e.g., from project root: `zip -r terraform/lambda_package.zip . -x './public/*' -x './terraform/*' -x './docs/*' -x '.git*' -x '*.md' -x 'node_modules/*'`). Adjust exclusion patterns as needed. Ensure `lambda.js` (or your handler entry point) is at the root of the zip. Run `npm install --omit=dev` before zipping if `node_modules` are included.
     - Place `lambda_package.zip` in the `terraform/` directory.
   - **DONE: `aws_lambda_function`:**
     - References the created IAM role.
@@ -272,7 +272,7 @@ This document outlines the tasks required to deploy the Storied Recipes project 
 - **DONE:** `terraform plan` and `terraform apply` complete successfully, creating security groups and ElastiCache resources.
 - **DONE:** Lambda function is configured to run in the VPC and can connect to ElastiCache.
 - **DONE:** Backend API successfully connects to ElastiCache Redis (check Lambda logs after API calls that involve caching, ensure no timeout errors).
-- **TODO:** Data is being cached and retrieved from ElastiCache (can be verified by observing API response times, `source` field if implemented, or connecting to Redis via an EC2 instance in the same VPC for debugging).
+- **DONE:** Data is being cached and retrieved from ElastiCache (can be verified by observing API response times, `source` field if implemented, or connecting to Redis via an EC2 instance in the same VPC for debugging).
 
 ## 4. Recipe Data Deployment
 
@@ -282,20 +282,11 @@ This document outlines the tasks required to deploy the Storied Recipes project 
 
 - **DONE: Option A: Include in Lambda Deployment Package:**
   - **DONE: Modify Lambda Packaging Script:** Ensure `data/recipes/` directory is included in the `lambda_package.zip`.
-  - **TODO: Backend Code (`server.js`, `routes/recipes.js`):** Ensure file paths to `data/recipes/` are correct relative to the Lambda execution environment (e.g., `path.join(__dirname, 'data', 'recipes')` might need adjustment if the zip structure changes).
-- **Option B: Store in a Separate S3 Bucket (More flexible for updates):**
-  - **TODO: Terraform (`terraform/s3_recipe_data.tf`):**
-    - Create a new private `aws_s3_bucket` for recipe data.
-    - Use `aws_s3_object` to upload each recipe JSON file, or use `aws s3 sync` post-apply.
-  - **TODO: Terraform (`terraform/api_lambda.tf`):**
-    - Grant Lambda execution role read access to this S3 bucket.
-    - Pass bucket name as an environment variable to Lambda.
-  - **TODO: Backend Code:** Modify to read recipe files from S3 using AWS SDK.
+  - **DONE: Backend Code (`server.js`, `routes/recipes.js`):** Ensure file paths to `data/recipes/` are correct relative to the Lambda execution environment (e.g., `path.join(__dirname, 'data', 'recipes')` might need adjustment if the zip structure changes).
 
 **Testing:**
 
-- **TODO:** `/api/recipe/{recipe_id}/initial` and `/api/recipes` endpoints correctly serve recipe data.
-- **TODO:** If using S3, verify Lambda can access and read files from the S3 bucket.
+- **DONE:** `/api/recipe/{recipe_id}/initial` and `/api/recipes` endpoints correctly serve recipe data.
 
 ## 5. Configuration & Final Testing
 

@@ -3,20 +3,23 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("recipe-title")
     .querySelector("h1");
   const storyContentElement = document.getElementById("story-content");
+  const API_BASE_URL =
+    "https://xre1rlalkd.execute-api.us-west-2.amazonaws.com/prod";
 
   // Determine RECIPE_ID from URL query parameter or use default
   const urlParams = new URLSearchParams(window.location.search);
-  const recipeIdFromUrl = urlParams.get('id');
+  const recipeIdFromUrl = urlParams.get("id");
   const RECIPE_ID = recipeIdFromUrl || "grandmother-secret-cookies"; // Fallback to default
 
   if (!recipeIdFromUrl) {
     console.warn("No recipe ID found in URL, using default:", RECIPE_ID);
   }
 
-
   async function fetchInitialData(recipeId) {
     try {
-      const response = await fetch(`/api/recipe/${recipeId}/initial`);
+      const response = await fetch(
+        `${API_BASE_URL}/api/recipe/${recipeId}/initial`,
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -102,14 +105,16 @@ document.addEventListener("DOMContentLoaded", () => {
           JSON.stringify(part),
         );
         paragraphElement.textContent += part;
-        
+
         // Only auto-scroll if the user hasn't scrolled up significantly
-        const isUserNearBottom = (window.scrollY + window.innerHeight) >= (document.body.offsetHeight - AUTOSCROLL_BOTTOM_THRESHOLD);
+        const isUserNearBottom =
+          window.scrollY + window.innerHeight >=
+          document.body.offsetHeight - AUTOSCROLL_BOTTOM_THRESHOLD;
         if (isUserNearBottom) {
           // Scroll the paragraph itself into view, aligning its bottom with the visible area's bottom.
           paragraphElement.scrollIntoView({ block: "end", behavior: "auto" });
         }
-        
+
         await new Promise((resolve) =>
           setTimeout(resolve, WORD_RENDER_DELAY_MS),
         );
@@ -128,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
     );
     try {
       const response = await fetch(
-        `/api/recipe/${recipeId}/continue?context=${encodeURIComponent(context)}&segmentNumber=${nextSegmentToFetch}`,
+        `${API_BASE_URL}/api/recipe/${recipeId}/continue?context=${encodeURIComponent(context)}&segmentNumber=${nextSegmentToFetch}`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -145,9 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
           console.log(`Updated nextSegmentToFetch to: ${nextSegmentToFetch}`);
         }
       } else {
-        console.warn(
-          "No continuation received from API or segment was empty.",
-        );
+        console.warn("No continuation received from API or segment was empty.");
         // If no new segment, allow fetching again sooner.
         isFetchingMoreStory = false;
         console.log("isFetchingMoreStory set to false (no new segment).");
