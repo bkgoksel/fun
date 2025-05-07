@@ -167,46 +167,12 @@ resource "aws_lambda_permission" "apigw_lambda" {
 resource "cloudflare_record" "api_dns" {
   zone_id = var.cloudflare_zone_id
   name    = "api" # api.yourdomain.com
-  value   = aws_api_gateway_stage.prod.invoke_url # This gives https://id.execute-api.region.amazonaws.com/stage
-                # Cloudflare CNAME needs just the hostname part.
-                # We extract it using replace.
-                # Example: "d342xxxx.execute-api.us-west-2.amazonaws.com"
+  # The `content` attribute should point to the API Gateway regional endpoint hostname.
+  # Format: {rest_api_id}.execute-api.{region}.amazonaws.com
+  content = "${aws_api_gateway_rest_api.api.id}.execute-api.${var.aws_region}.amazonaws.com"
   type    = "CNAME"
   proxied = true # Enable Cloudflare proxy
   ttl     = 1    # Auto TTL when proxied
-
-  # Extract hostname from invoke_url
-  # invoke_url is like https://<id>.execute-api.<region>.amazonaws.com/<stage>
-  # We need <id>.execute-api.<region>.amazonaws.com
-  # Using a more robust way to get the hostname for CNAME
-  # The invoke_url from aws_api_gateway_stage includes the stage, which is not part of the CNAME target.
-  # The actual hostname is part of aws_api_gateway_rest_api.id.execute-api.aws_region.amazonaws.com
-  # However, API Gateway custom domain is a better practice for cleaner URLs.
-  # For now, we'll use the invoke URL's hostname part.
-  # A common way to get the hostname for CNAME:
-  # aws_api_gateway_rest_api.api.id.execute-api.var.aws_region.amazonaws.com
-  # but invoke_url is simpler if we strip https:// and /stage
-  # For regional endpoints, the format is ${rest_api_id}.execute-api.${region}.amazonaws.com
-  # The invoke_url is https://${rest_api_id}.execute-api.${region}.amazonaws.com/${stage_name}
-  # So we need to strip "https://" and "/${stage_name}"
-  # Using regex to extract the hostname part of the invoke_url
-  # Example: https://abcdef123.execute-api.us-west-2.amazonaws.com/prod -> abcdef123.execute-api.us-west-2.amazonaws.com
-  # This is a common pattern, but for Cloudflare CNAME, it expects just the hostname.
-  # The `invoke_url` output from `aws_api_gateway_stage` is the full URL.
-  # We need to parse the hostname from it.
-  # A simpler way is to use the `execution_arn` to build the hostname, but that's also complex.
-  # The most direct way for a regional endpoint is:
-  # ${aws_api_gateway_rest_api.api.id}.execute-api.${var.aws_region}.amazonaws.com
-  # Let's use this pattern.
-  # value = "${aws_api_gateway_rest_api.api.id}.execute-api.${var.aws_region}.amazonaws.com"
-  # The above is correct. The `invoke_url` from the stage includes the stage name.
-  # The CNAME should point to the base execute-api domain.
-  # For `aws_api_gateway_stage`, `invoke_url` is `https://{rest_api_id}.execute-api.{region}.amazonaws.com/{stage_name}`
-  # The target for CNAME should be `{rest_api_id}.execute-api.{region}.amazonaws.com`
-  # We can use `replace` to strip the protocol and stage path.
-  # content = replace(replace(aws_api_gateway_stage.prod.invoke_url, "https://", ""), "/${aws_api_gateway_stage.prod.stage_name}", "")
-  # This is getting complex. Let's use the direct construction.
-  content = "${aws_api_gateway_rest_api.api.id}.execute-api.${var.aws_region}.amazonaws.com"
 
   depends_on = [aws_api_gateway_stage.prod]
 }
