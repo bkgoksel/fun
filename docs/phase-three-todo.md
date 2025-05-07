@@ -104,10 +104,10 @@ This document outlines the tasks required to implement UX refinements and polish
 
 **Testing:**
 
-*   **TODO:** Vigorously test scrolling up and down while new story segments are being rendered word-by-word.
-*   **TODO:** Verify that if the user scrolls up, the automatic scrolling pauses and does not immediately pull their view back down.
-*   **TODO:** Verify that automatic scrolling resumes correctly if the user scrolls back to the bottom or when new, subsequent segments are loaded.
-*   **TODO:** Test on different browsers for consistent behavior.
+*   **DONE:** Vigorously test scrolling up and down while new story segments are being rendered word-by-word.
+*   **DONE:** Verify that if the user scrolls up, the automatic scrolling pauses and does not immediately pull their view back down.
+*   **DONE:** Verify that automatic scrolling resumes correctly if the user scrolls back to the bottom or when new, subsequent segments are loaded.
+*   **DONE:** Test on different browsers for consistent behavior.
 
 ## 5. (Optional) Recipe Index Page
 
