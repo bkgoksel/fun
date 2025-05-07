@@ -22,8 +22,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       recipes.forEach((recipe) => {
         const listItem = document.createElement("li");
         const link = document.createElement("a");
-        // Use extensionless URL for recipe links
-        link.href = `/recipe?id=${encodeURIComponent(recipe.id)}`;
+        // Use .html extension for recipe links to ensure S3 serves the correct file via CloudFront
+        link.href = `/recipe.html?id=${encodeURIComponent(recipe.id)}`;
         link.textContent = recipe.title;
         listItem.appendChild(link);
         recipeListElement.appendChild(listItem);
