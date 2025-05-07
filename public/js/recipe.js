@@ -41,4 +41,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   fetchInitialData(RECIPE_ID);
+
+  // --- Task 3: Scroll Detection ---
+  let isFetchingMoreStory = false; // Flag to prevent multiple fetches
+  const SCROLL_THRESHOLD = 200; // Pixels from bottom to trigger fetch
+
+  window.addEventListener('scroll', () => {
+    // Check if we're near the bottom and not already fetching
+    if (
+      !isFetchingMoreStory &&
+      (window.innerHeight + window.scrollY) >= (document.body.offsetHeight - SCROLL_THRESHOLD)
+    ) {
+      console.log("User is near the bottom, time to fetch more story!");
+      // For now, just log. In Task 4, this will call fetchMoreStory().
+      // To prevent rapid logging if content doesn't grow, we'd set isFetchingMoreStory here.
+      // isFetchingMoreStory = true; // Will be properly managed in Task 4 & 5
+    }
+  });
 });
