@@ -169,8 +169,8 @@ This document outlines the tasks required to deploy the Storied Recipes project 
 - **DONE:** ACM certificate is issued and validated.
 - **DONE:** Cloudflare DNS record is created/updated.
 - **DONE:** Frontend files are synced to S3.
-- **TODO:** Accessing the domain via HTTPS (e.g., `https://your.domain.com`) serves `index.html`.
-- **TODO:** Navigation to `/recipe` (extensionless) works.
+- **DONE:** Accessing the domain via HTTPS (e.g., `https://your.domain.com`) serves `index.html`.
+- **DONE:** Navigation to `/recipe` (extensionless) works.
 
 ## 2. Backend API Deployment (AWS Lambda + API Gateway)
 
