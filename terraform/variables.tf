@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS region for deploying resources."
   type        = string
-  default     = "us-east-1" # Or your preferred region
+  default     = "us-west-2" # Or your preferred region
 }
 
 variable "cloudflare_api_token" {
