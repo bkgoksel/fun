@@ -23,7 +23,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (data.initialStorySeed) {
-        await renderStorySegmentWordByWord(data.initialStorySeed, storyContentElement);
+        await renderStorySegmentWordByWord(
+          data.initialStorySeed,
+          storyContentElement,
+        );
       } else {
         console.warn("No initial story segment received from API.");
         storyContentElement.textContent =
@@ -42,8 +45,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- Task 3, 4 & 5: Scroll Detection, Fetch More Story, Word-by-Word Rendering ---
   let isFetchingMoreStory = false; // Flag to prevent multiple fetches
   const SCROLL_THRESHOLD = 200; // Pixels from bottom to trigger fetch
-  const CHARS_FOR_CONTEXT = 250; // Number of characters to send as context
-  const WORD_RENDER_DELAY_MS = 100; // Delay for word-by-word rendering
+  const CHARS_FOR_CONTEXT = 1000; // Number of characters to send as context
+  const WORD_RENDER_DELAY_MS = 10; // Delay for word-by-word rendering
 
   async function renderStorySegmentWordByWord(segmentText, targetElement) {
     if (!segmentText || segmentText.trim() === "") {
@@ -60,8 +63,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // and the paragraph doesn't already end with a space.
     if (
       paragraphElement.textContent.length > 0 &&
-      segmentText[0] !== ' ' &&
-      paragraphElement.textContent[paragraphElement.textContent.length - 1] !== ' '
+      segmentText[0] !== " " &&
+      paragraphElement.textContent[paragraphElement.textContent.length - 1] !==
+        " "
     ) {
       segmentText = " " + segmentText;
     }
@@ -72,26 +76,38 @@ document.addEventListener("DOMContentLoaded", () => {
       if (part.length > 0) {
         paragraphElement.textContent += part;
         window.scrollTo(0, document.body.scrollHeight); // Scroll to bottom
-        await new Promise((resolve) => setTimeout(resolve, WORD_RENDER_DELAY_MS));
+        await new Promise((resolve) =>
+          setTimeout(resolve, WORD_RENDER_DELAY_MS),
+        );
       }
     }
   }
 
   async function fetchMoreStory(recipeId, context) {
-    console.log("Attempting to fetch more story with context snippet:", context.substring(0, 50) + "...");
+    console.log(
+      "Attempting to fetch more story with context snippet:",
+      context.substring(0, 50) + "...",
+    );
     try {
-      const response = await fetch(`/api/recipe/${recipeId}/continue?context=${encodeURIComponent(context)}`);
+      const response = await fetch(
+        `/api/recipe/${recipeId}/continue?context=${encodeURIComponent(context)}`,
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
 
       if (data.nextStorySegment) {
-        await renderStorySegmentWordByWord(data.nextStorySegment, storyContentElement);
+        await renderStorySegmentWordByWord(
+          data.nextStorySegment,
+          storyContentElement,
+        );
       } else {
-        console.warn("No next story segment received from API or segment was empty.");
+        console.warn(
+          "No next story segment received from API or segment was empty.",
+        );
         // If no new segment, allow fetching again sooner.
-        isFetchingMoreStory = false; 
+        isFetchingMoreStory = false;
         console.log("isFetchingMoreStory set to false (no new segment).");
         return; // Exit early if no segment to render
       }
@@ -100,25 +116,30 @@ document.addEventListener("DOMContentLoaded", () => {
     } finally {
       // This will now correctly run after renderStorySegmentWordByWord completes (or if an error occurs before/during it)
       // unless we returned early due to no segment.
-      if (isFetchingMoreStory) { // Check if it wasn't already set to false
-          isFetchingMoreStory = false; 
-          console.log("isFetchingMoreStory set to false in finally block.");
+      if (isFetchingMoreStory) {
+        // Check if it wasn't already set to false
+        isFetchingMoreStory = false;
+        console.log("isFetchingMoreStory set to false in finally block.");
       }
     }
   }
 
-  window.addEventListener('scroll', () => {
+  window.addEventListener("scroll", () => {
     if (
       !isFetchingMoreStory && // Only proceed if not already fetching
-      (window.innerHeight + window.scrollY) >= (document.body.offsetHeight - SCROLL_THRESHOLD)
+      window.innerHeight + window.scrollY >=
+        document.body.offsetHeight - SCROLL_THRESHOLD
     ) {
       isFetchingMoreStory = true; // Set flag immediately to prevent multiple triggers
       console.log("isFetchingMoreStory set to true. User is near the bottom.");
 
       const fullText = storyContentElement.innerText;
       // Use the last CHARS_FOR_CONTEXT characters of the current story as context
-      const context = fullText.length > CHARS_FOR_CONTEXT ? fullText.slice(-CHARS_FOR_CONTEXT) : fullText;
-      
+      const context =
+        fullText.length > CHARS_FOR_CONTEXT
+          ? fullText.slice(-CHARS_FOR_CONTEXT)
+          : fullText;
+
       fetchMoreStory(RECIPE_ID, context);
     }
   });
