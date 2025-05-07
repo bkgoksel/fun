@@ -109,3 +109,34 @@
 *   **Cost Management:** Aggressive caching is paramount. Monitor LLM usage and costs.
 *   **"Never Reach the End" Mechanic:** The frontend must request new content *before* the user physically reaches the absolute end of the loaded text. The threshold for triggering a new fetch should be tuned.
 *   **Content Moderation (if applicable):** Depending on the LLM, consider if any output filtering is needed, though for a joke site, this might be less critical unless the LLM produces undesirable content.
+
+**E. Deployment:**
+
+Focus on lightweight, simple, and cost-effective solutions, as high scalability or handling a large number of visitors is not an initial concern.
+
+1.  **Frontend (Static Assets):**
+    *   **GitHub Pages:** Free hosting for static sites directly from a GitHub repository.
+    *   **Netlify/Vercel Free Tiers:** Offer generous free tiers for deploying static frontends with CI/CD integration.
+    *   **Cloud Storage + CDN:** Services like AWS S3, Google Cloud Storage, or Azure Blob Storage can host static files, often with a free tier. A CDN (like Cloudflare's free plan) can be put in front for caching and performance.
+
+2.  **Backend (Node.js Application & Redis):**
+    *   **Platform as a Service (PaaS) Free Tiers:**
+        *   **Heroku:** Has a free tier for Node.js apps and Redis add-ons (though free tier capabilities have been reduced).
+        *   **Fly.io:** Offers a "free allowance" that can cover small Node.js apps and a small Redis instance.
+        *   **Render:** Provides free tiers for web services (Node.js) and Redis.
+    *   **Small Virtual Private Server (VPS):**
+        *   Providers like DigitalOcean, Linode, Vultr, or Hetzner offer very cheap VPS options (e.g., $5-10/month).
+        *   Requires manual setup of Node.js environment, process manager (like PM2), and Redis (can be run on the same VPS for a small app).
+    *   **Serverless Functions (for API):**
+        *   Services like AWS Lambda, Google Cloud Functions, or Azure Functions can host the backend API endpoints.
+        *   Pay-per-use model, can be very cheap for low traffic.
+        *   Redis would still need to be hosted separately (e.g., managed Redis services like ElastiCache, Memorystore, or a Redis instance on a small VPS/PaaS).
+
+3.  **Recipe Data (JSON files):**
+    *   If using a PaaS or VPS, these files can be deployed alongside the backend application code.
+    *   Ensure they are included in the deployment package.
+
+4.  **Considerations:**
+    *   **Simplicity:** Prioritize solutions that are easy to set up and manage.
+    *   **Cost:** Leverage free tiers or the most affordable options.
+    *   **LLM API Keys:** Securely manage LLM API keys using environment variables provided by the hosting platform.
