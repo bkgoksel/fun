@@ -1,3 +1,5 @@
+require('dotenv').config(); // Load environment variables from .env file at the very top
+
 const express = require("express");
 const path = require("path"); // Import path module
 const recipeRoutes = require("./routes/recipes");
