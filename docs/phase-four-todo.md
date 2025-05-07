@@ -186,7 +186,9 @@ This document outlines the tasks required to deploy the Storied Recipes project 
     - TODO: Add permissions for Secrets Manager if API keys/Redis AUTH token are stored there (Phase 4, Step 3).
     - TODO: Add `AWSLambdaVPCAccessExecutionRole` if Lambda needs VPC access for ElastiCache (Phase 4, Step 3).
   - **TODO: Packaging Lambda Code (Manual/Scripted Step):**
-    - Create a zip file of the Node.js application (e.g., `cd .. && zip -r terraform/lambda_package.zip . -x './public/*' -x './data/*' -x './terraform/*' -x './docs/*' -x '.git*' -x '*.md' -x 'node_modules/*'`). Adjust exclusion patterns as needed. Ensure `lambda.js` (or your handler entry point) is at the root of the zip. Run `npm install --omit=dev` before zipping if `node_modules` are included.
+    - **Ensure `zip` utility is installed.** (e.g., on Debian/Ubuntu: `sudo apt update && sudo apt install zip -y`).
+    - **Delete any existing empty/invalid `terraform/lambda_package.zip` file first** (e.g., `rm -f terraform/lambda_package.zip`).
+    - Create a zip file of the Node.js application (e.g., from project root: `zip -r terraform/lambda_package.zip . -x './public/*' -x './data/*' -x './terraform/*' -x './docs/*' -x '.git*' -x '*.md' -x 'node_modules/*'`). Adjust exclusion patterns as needed. Ensure `lambda.js` (or your handler entry point) is at the root of the zip. Run `npm install --omit=dev` before zipping if `node_modules` are included.
     - Place `lambda_package.zip` in the `terraform/` directory.
   - **DONE: `aws_lambda_function`:**
     - References the created IAM role.
