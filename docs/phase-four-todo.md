@@ -124,26 +124,27 @@ This document outlines the tasks required to deploy the Storied Recipes project 
 
 **Actions & Files (Terraform - in `terraform/` directory):**
 
-- **TODO: Create `terraform/s3_cloudfront.tf`:**
-  - **`aws_s3_bucket`:** For static website hosting.
-    - Configure `website` block or use `aws_s3_bucket_website_configuration`.
-  - **`aws_s3_bucket_public_access_block`:** Restrict public access appropriately.
-  - **`aws_cloudfront_origin_access_identity` (OAI) or `aws_cloudfront_origin_access_control` (OAC):** To allow CloudFront to access S3 securely.
-  - **`aws_s3_bucket_policy`:** Grant OAI/OAC read access to the S3 bucket.
-  - **`aws_acm_certificate`:** For HTTPS.
+- **DONE: Create `terraform/s3_cloudfront.tf`:**
+  - **DONE: `aws_s3_bucket`:** For static website hosting.
+  - **DONE: `aws_s3_bucket_public_access_block`:** Restrict public access appropriately.
+  - **DONE: `aws_cloudfront_origin_access_control` (OAC):** To allow CloudFront to access S3 securely.
+  - **DONE: `aws_s3_bucket_policy`:** Grant OAC read access to the S3 bucket.
+  - **DONE: `aws_acm_certificate`:** For HTTPS.
     - Must be in `us-east-1` for CloudFront.
-    - Use DNS validation. This might require manually adding CNAME records to Cloudflare initially, or using the Cloudflare provider to automate it if the certificate is for the apex domain or a subdomain managed by Cloudflare.
-  - **`aws_cloudfront_distribution`:**
-    - Configure S3 origin with OAI/OAC.
-    - Configure viewer certificate with ACM certificate ARN.
-    - Set up default root object (e.g., `index.html`).
-    - Configure behaviors (caching, allowed methods, etc.).
-  - **`cloudflare_record`:**
-    - Create CNAME record (e.g., `www` or apex if using alias) pointing to the CloudFront distribution domain name.
-    - Ensure Cloudflare proxy status is set as desired (DNS only for ACM validation CNAMEs, Proxied for the main site CNAME).
-- **TODO: Update `terraform/outputs.tf`:**
+    - Uses DNS validation with Cloudflare provider automation.
+  - **DONE: `aws_cloudfront_distribution`:**
+    - Configured S3 origin with OAC.
+    - Configured viewer certificate with ACM certificate ARN.
+    - Set up default root object (`index.html`).
+    - Configured behaviors (caching, redirect-to-https, SPA error handling).
+  - **DONE: `cloudflare_record`:**
+    - Created CNAME records for `www` and apex pointing to the CloudFront distribution domain name.
+    - Created CNAME records for ACM validation (DNS only).
+    - Ensured Cloudflare proxy status is set as desired.
+- **DONE: Update `terraform/outputs.tf`:**
   - Output S3 bucket name.
   - Output CloudFront distribution ID and domain name.
+  - Output website URLs and ACM certificate ARN.
 - **TODO: Manual/Scripted Step (Outside Terraform): Deploy Frontend Files:**
   - After Terraform applies, use AWS CLI to sync `public/` directory to the S3 bucket:
     `aws s3 sync ../public/ s3://<your-s3-bucket-name-from-terraform-output>/ --delete`

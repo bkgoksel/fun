@@ -24,6 +24,12 @@ provider "aws" {
   # Credentials configured via AWS CLI, environment variables, or instance profile
 }
 
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+  # Credentials configured via AWS CLI, environment variables, or instance profile
+}
+
 provider "cloudflare" {
   api_token = var.cloudflare_api_token
   # Or use CLOUDFLARE_API_TOKEN environment variable
