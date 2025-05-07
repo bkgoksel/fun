@@ -109,14 +109,14 @@ This document outlines the tasks required to deploy the Storied Recipes project 
 
 - **DONE: Create `terraform/outputs.tf` (initially empty or with placeholders):**
   - **Purpose:** Define outputs from the Terraform configuration (e.g., CloudFront URL, API Gateway URL).
-- **TODO: Initialize Terraform:**
+- **DONE: Initialize Terraform:**
   - Run `terraform init` in the `terraform` directory.
 
 **Testing:**
 
-- **TODO:** `terraform init` completes successfully.
-- **TODO:** `terraform validate` passes.
-- **TODO:** `terraform plan` (with necessary TF_VARs set) shows a plan without errors (even if it's creating no resources yet).
+- **DONE:** `terraform init` completes successfully.
+- **DONE:** `terraform validate` passes.
+- **DONE:** `terraform plan` (with necessary TF_VARs set) shows a plan without errors (even if it's creating no resources yet).
 
 ## 1. Frontend Deployment (AWS S3 + CloudFront)
 
