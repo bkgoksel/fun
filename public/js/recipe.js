@@ -22,6 +22,11 @@ document.addEventListener("DOMContentLoaded", () => {
         recipeTitleElement.textContent = "Recipe Title Not Found";
       }
 
+      if (data.nextSegmentNumber !== undefined) {
+        nextSegmentToFetch = data.nextSegmentNumber;
+        console.log(`Initial nextSegmentToFetch set to: ${nextSegmentToFetch}`);
+      }
+
       if (data.initialStorySeed) {
         // Render initial story segment all at once
         const p = document.createElement("p");
@@ -45,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
   fetchInitialData(RECIPE_ID); // Load initial data
 
   // --- Task 3, 4 & 5: Scroll Detection, Fetch More Story, Word-by-Word Rendering ---
+  let nextSegmentToFetch = 1; // Initialize: Segment 0 is the initial seed, first fetch is for segment 1.
   let isFetchingMoreStory = false; // Flag to prevent multiple fetches
   const SCROLL_THRESHOLD = 200; // Pixels from bottom to trigger fetch
   const CHARS_FOR_CONTEXT = 1000; // Number of characters to send as context
@@ -108,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
     );
     try {
       const response = await fetch(
-        `/api/recipe/${recipeId}/continue?context=${encodeURIComponent(context)}`,
+        `/api/recipe/${recipeId}/continue?context=${encodeURIComponent(context)}&segmentNumber=${nextSegmentToFetch}`,
       );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -120,9 +126,13 @@ document.addEventListener("DOMContentLoaded", () => {
           data.continuation,
           storyContentElement,
         );
+        if (data.nextSegmentNumber !== undefined) {
+          nextSegmentToFetch = data.nextSegmentNumber;
+          console.log(`Updated nextSegmentToFetch to: ${nextSegmentToFetch}`);
+        }
       } else {
         console.warn(
-          "No next story segment received from API or segment was empty.",
+          "No continuation received from API or segment was empty.",
         );
         // If no new segment, allow fetching again sooner.
         isFetchingMoreStory = false;
