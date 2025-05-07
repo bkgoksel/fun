@@ -125,6 +125,14 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     min_ttl                = 0
     default_ttl            = 1
     max_ttl                = 1
+
+    forwarded_values {
+      query_string = true # Cache based on all query strings
+      cookies {
+        forward = "none" # Do not forward cookies
+      }
+      headers = [] # Do not forward any headers
+    }
     # Using a managed cache policy for S3 static hosting.
     # This policy is "Managed-CachingOptimized" (ID: 658327ea-f89d-4fab-a63d-7e88639e58f6)
     # It handles forwarding of headers, cookies, and query strings appropriately for caching.
