@@ -60,35 +60,29 @@ This document outlines the tasks required to implement UX refinements and polish
     *   Note degradation in LLM response time or quality.
 *   If backend context summarization is implemented, verify its effectiveness.
 
-## 3. Loading Indicators and Error Handling (Frontend)
+## 3. Loading Indicators and Error Handling (Frontend) (SKIPPED)
 
 **Goal:** Provide better user feedback during content loading and in case of API or LLM errors.
 
-**Actions & Files:**
+**Decision:** Skipped as current behavior is deemed acceptable for now.
 
-*   **TODO: Modify `public/js/recipe.js`:**
+**Original Actions & Files (For Reference):**
+
+*   **Modify `public/js/recipe.js`:**
     *   **Purpose:** Implement UI updates for loading and error states.
     *   **Content:**
-        *   In `fetchMoreStory`:
-            *   When `isFetchingMoreStory` is set to `true`, display a subtle loading indicator. This could be a small text message (e.g., "The storyteller is scribbling furiously...") or a simple animated spinner appended to `story-content` or a dedicated status element.
-            *   When new content is received or an error occurs (and `isFetchingMoreStory` becomes `false`), remove/hide the loading indicator.
-        *   In the `catch` blocks of `fetchInitialData` and `fetchMoreStory`:
-            *   Instead of just `console.error`, append a user-friendly error message to `story-content`. For example: "Oh dear, the ink seems to have run dry! Please try scrolling again in a moment."
-            *   Ensure these messages are clearly distinct from the story text.
-*   **TODO: Modify `public/css/style.css`:**
-    *   **Purpose:** Style the new loading indicators and error messages.
-    *   **Content:** Add CSS rules for `.loading-indicator`, `.error-message`, etc.
-*   **TODO: Modify `public/recipe.html` (Optional):**
-    *   **Purpose:** Add a dedicated element for status messages if preferred.
-    *   **Content:** Could add `<div id="status-messages"></div>` where loading/error messages are placed.
+        *   Display loading indicators during `fetchMoreStory`.
+        *   Append user-friendly error messages in `catch` blocks.
+*   **Modify `public/css/style.css`:**
+    *   **Purpose:** Style loading indicators and error messages.
+*   **Modify `public/recipe.html` (Optional):**
+    *   **Purpose:** Add a dedicated element for status messages.
 
-**Testing:**
+**Original Testing (For Reference):**
 
-*   **TODO:** Verify that the loading indicator appears briefly when scrolling triggers a new fetch and disappears once content starts rendering or an error is shown.
-*   **TODO:** Simulate API errors for `/initial` and `/continue` endpoints (e.g., by temporarily stopping the backend server or modifying an endpoint to return a 500 error).
-    *   Verify that user-friendly error messages are displayed in `story-content`.
-    *   Verify that the application remains usable (e.g., user can try scrolling again).
-*   **TODO:** Check styling of loading indicators and error messages.
+*   Verify loading indicator appearance and disappearance.
+*   Simulate API errors and verify display of user-friendly messages.
+*   Check styling of indicators and error messages.
 
 ## 4. Smooth Scrolling Refinements
 
