@@ -107,7 +107,7 @@ This document outlines the tasks required to implement the frontend core functio
 
 **Testing:**
 
-- **TODO:** Ensure a mock or actual backend endpoint `GET /api/recipe/grandmother-secret-cookies/continue` is available. It should accept a `context` query parameter and return a JSON object like:
+- **DONE:** Ensure a mock or actual backend endpoint `GET /api/recipe/grandmother-secret-cookies/continue` is available. It should accept a `context` query parameter and return a JSON object like:
 
   ```json
   {
@@ -115,12 +115,12 @@ This document outlines the tasks required to implement the frontend core functio
   }
   ```
 
-- **TODO:** Open `public/recipe.html` in a browser.
-- **TODO:** Open the browser's developer console.
-- **TODO:** Scroll down to trigger the "fetch more" logic.
-- **TODO:** Verify that a network request is made to the `/continue` endpoint with the correct `recipeId` and a `context` parameter.
-- **TODO:** Verify that the response from the API (the `nextStorySegment`) is logged to the console.
-- **TODO:** Verify the loading state flag prevents rapid-fire requests if scrolling continues while a fetch is in progress.
+- **DONE:** Open `public/recipe.html` in a browser.
+- **DONE:** Open the browser's developer console.
+- **DONE:** Scroll down to trigger the "fetch more" logic.
+- **DONE:** Verify that a network request is made to the `/continue` endpoint with the correct `recipeId` and a `context` parameter.
+- **DONE:** Verify that the response from the API (the `nextStorySegment`) is logged to the console.
+- **DONE:** Verify the loading state flag prevents rapid-fire requests if scrolling continues while a fetch is in progress.
 
 ## 5. Word-by-Word Rendering
 
