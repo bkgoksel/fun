@@ -92,18 +92,18 @@ This document outlines the tasks required to implement the frontend core functio
 
 **Actions & Files:**
 
-- **Modify `public/js/recipe.js`:**
+- **DONE: Modify `public/js/recipe.js`:**
   - **Purpose:** Integrate API call for story continuation.
   - **Content:**
-    - Create a function `fetchMoreStory(recipeId, context)`.
-      - This function will use the `fetch` API to call `GET /api/recipe/{recipe_id}/continue`.
-      - The `context` parameter will be the last N words/characters of the current story, URL-encoded. (Define N, e.g., last 50 words).
-      - For now, `recipeId` can be hardcoded.
-    - Modify the scroll detection logic:
-      - When triggered, gather the current story context (e.g., `document.getElementById('story-content').innerText`).
-      - Call `fetchMoreStory` with the `recipeId` and the extracted context.
-      - Log the response (the next story segment) to the console.
-      - Implement a loading state flag (e.g., `isLoadingMoreStory = true`) to prevent multiple concurrent requests. Reset it after the fetch completes (success or error).
+    - Created an `async` function `fetchMoreStory(recipeId, context)`.
+      - This function uses the `fetch` API to call `GET /api/recipe/{recipe_id}/continue`.
+      - The `context` parameter is approximately the last 250 characters of the current story from `story-content.innerText`, URL-encoded.
+      - `recipeId` is hardcoded (as `RECIPE_ID`).
+    - Modified the scroll detection logic:
+      - When triggered and not already fetching, it gathers the current story context.
+      - Calls `fetchMoreStory` with the `recipeId` and the extracted context.
+      - The `fetchMoreStory` function logs the `nextStorySegment` from the API response to the console.
+      - Implemented and manages the `isFetchingMoreStory` flag to prevent multiple concurrent requests. The flag is set to `true` before the fetch and reset to `false` in a `finally` block within `fetchMoreStory`.
 
 **Testing:**
 
