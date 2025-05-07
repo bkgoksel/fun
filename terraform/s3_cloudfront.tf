@@ -85,7 +85,7 @@ resource "cloudflare_record" "cert_validation_records" {
 
   zone_id = var.cloudflare_zone_id
   name    = each.value.name
-  value   = each.value.record
+  content = each.value.record # Changed 'value' to 'content'
   type    = each.value.type
   proxied = false # DNS-only for validation records
   ttl     = 1     # Suggested by AWS for validation (can be low, e.g., 60)
@@ -122,9 +122,12 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
     viewer_protocol_policy = "redirect-to-https"
     compress               = true
-    min_ttl                = 0
-    default_ttl            = 3600  # 1 hour
-    max_ttl                = 86400 # 24 hours
+    # Using a managed cache policy for S3 static hosting.
+    # This policy is "Managed-CachingOptimized" (ID: 658327ea-f89d-4fab-a63d-7e88639e58f6)
+    # It handles forwarding of headers, cookies, and query strings appropriately for caching.
+    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    # min_ttl, default_ttl, max_ttl are overridden by the cache policy.
+    # If you need custom TTLs, you might need to create a custom cache policy.
   }
 
   # SPA-friendly error handling: serve index.html for 403/404 errors from S3 origin
@@ -171,7 +174,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 resource "cloudflare_record" "www_site_dns" {
   zone_id = var.cloudflare_zone_id
   name    = "www" # For www.yourdomain.com
-  value   = aws_cloudfront_distribution.s3_distribution.domain_name
+  content = aws_cloudfront_distribution.s3_distribution.domain_name # Changed 'value' to 'content'
   type    = "CNAME"
   proxied = true # Enable Cloudflare proxy
   ttl     = 1    # Auto TTL when proxied
@@ -182,7 +185,7 @@ resource "cloudflare_record" "www_site_dns" {
 resource "cloudflare_record" "apex_site_dns" {
   zone_id = var.cloudflare_zone_id
   name    = "@" # For the apex domain (e.g., yourdomain.com)
-  value   = aws_cloudfront_distribution.s3_distribution.domain_name
+  content = aws_cloudfront_distribution.s3_distribution.domain_name # Changed 'value' to 'content'
   type    = "CNAME"
   proxied = true # Enable Cloudflare proxy
   ttl     = 1    # Auto TTL when proxied
