@@ -75,7 +75,8 @@ document.addEventListener("DOMContentLoaded", () => {
     for (const part of parts) {
       if (part.length > 0) {
         paragraphElement.textContent += part;
-        window.scrollTo(0, document.body.scrollHeight); // Scroll to bottom
+        // Scroll the paragraph itself into view, aligning its bottom with the visible area's bottom.
+        paragraphElement.scrollIntoView({ block: 'end', behavior: 'auto' }); 
         await new Promise((resolve) =>
           setTimeout(resolve, WORD_RENDER_DELAY_MS),
         );
