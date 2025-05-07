@@ -45,9 +45,9 @@
 **B. Tech Stack Suggestions:**
 
 *   **Frontend:**
-    *   JavaScript framework (e.g., React, Vue, Svelte) for dynamic content updates. Vanilla JS is also an option.
+    *   Vanilla JS for dynamic content updates.
     *   Standard HTML/CSS.
-    *   `fetch` API or Axios for HTTP requests.
+    *   `fetch` API (built-in) for HTTP requests.
 *   **Backend:**
     *   Language/Framework:
         *   Python (FastAPI, Flask) - Good for LLM integration and rapid development.
