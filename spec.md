@@ -103,6 +103,25 @@
     4.  **Smooth Scrolling:** Fine-tune scrolling behavior as new content is added to avoid jarring jumps.
     5.  **(Optional) Recipe Index Page:** Develop a simple page to list and link to different recipes.
 
+**Phase 4: Deployment**
+    1.  **Frontend Deployment (AWS S3 + CloudFront):**
+        *   Set up an S3 bucket for static website hosting.
+        *   Configure CloudFront distribution to serve content from the S3 bucket, including HTTPS.
+        *   Deploy frontend HTML, CSS, and JS files to S3.
+    2.  **Backend API Deployment (AWS Lambda):**
+        *   Package the Node.js application (Express.js API) for Lambda.
+        *   Create Lambda functions for each API endpoint (or a single function handling routing).
+        *   Configure API Gateway to trigger Lambda functions.
+    3.  **Redis Deployment (Render/Upstash):**
+        *   Set up a free tier Redis instance on Render or Upstash.
+        *   Configure the backend Lambda functions with connection details for Redis (using environment variables).
+    4.  **Recipe Data Deployment:**
+        *   Include JSON recipe files in the Lambda deployment package or store them in S3 accessible by Lambda.
+    5.  **Configuration & Testing:**
+        *   Update frontend API call URLs to point to the deployed API Gateway endpoint.
+        *   Thoroughly test the end-to-end deployed application.
+        *   Securely manage all API keys and credentials using environment variables in Lambda and connection strings.
+
 **D. Key Considerations:**
 
 *   **LLM Prompt Engineering:** The initial prompt for each recipe is critical for setting the story's tone, style, and theme.
@@ -110,33 +129,33 @@
 *   **"Never Reach the End" Mechanic:** The frontend must request new content *before* the user physically reaches the absolute end of the loaded text. The threshold for triggering a new fetch should be tuned.
 *   **Content Moderation (if applicable):** Depending on the LLM, consider if any output filtering is needed, though for a joke site, this might be less critical unless the LLM produces undesirable content.
 
-**E. Deployment:**
+**E. Deployment Strategy (Recommended):**
 
-Focus on lightweight, simple, and cost-effective solutions, as high scalability or handling a large number of visitors is not an initial concern.
+Focus on lightweight, simple, and cost-effective solutions, leveraging AWS familiarity where practical.
 
-1.  **Frontend (Static Assets):**
-    *   **GitHub Pages:** Free hosting for static sites directly from a GitHub repository.
-    *   **Netlify/Vercel Free Tiers:** Offer generous free tiers for deploying static frontends with CI/CD integration.
-    *   **Cloud Storage + CDN:** Services like AWS S3, Google Cloud Storage, or Azure Blob Storage can host static files, often with a free tier. A CDN (like Cloudflare's free plan) can be put in front for caching and performance.
+1.  **Frontend (Static Assets - HTML, CSS, Vanilla JS):**
+    *   **AWS S3 + AWS CloudFront:**
+        *   Host static files in an S3 bucket configured for website hosting.
+        *   Use CloudFront as a CDN for improved performance, HTTPS, and caching. This leverages AWS free tiers effectively.
 
-2.  **Backend (Node.js Application & Redis):**
-    *   **Platform as a Service (PaaS) Free Tiers:**
-        *   **Heroku:** Has a free tier for Node.js apps and Redis add-ons (though free tier capabilities have been reduced).
-        *   **Fly.io:** Offers a "free allowance" that can cover small Node.js apps and a small Redis instance.
-        *   **Render:** Provides free tiers for web services (Node.js) and Redis.
-    *   **Small Virtual Private Server (VPS):**
-        *   Providers like DigitalOcean, Linode, Vultr, or Hetzner offer very cheap VPS options (e.g., $5-10/month).
-        *   Requires manual setup of Node.js environment, process manager (like PM2), and Redis (can be run on the same VPS for a small app).
-    *   **Serverless Functions (for API):**
-        *   Services like AWS Lambda, Google Cloud Functions, or Azure Functions can host the backend API endpoints.
-        *   Pay-per-use model, can be very cheap for low traffic.
-        *   Redis would still need to be hosted separately (e.g., managed Redis services like ElastiCache, Memorystore, or a Redis instance on a small VPS/PaaS).
+2.  **Backend API (Node.js - Express.js):**
+    *   **AWS Lambda + API Gateway:**
+        *   Deploy the Node.js application as AWS Lambda functions.
+        *   Use API Gateway to create HTTP endpoints that trigger these Lambda functions.
+        *   This is highly cost-effective (pay-per-use, generous free tier) and scalable.
 
-3.  **Recipe Data (JSON files):**
-    *   If using a PaaS or VPS, these files can be deployed alongside the backend application code.
-    *   Ensure they are included in the deployment package.
+3.  **Caching (Redis):**
+    *   **Render (Free Tier) or Upstash (Free Tier):**
+        *   Utilize a free tier offering from a specialized Redis provider like Render or Upstash.
+        *   These services are simple to set up and integrate with AWS Lambda, offering a no-cost or very low-cost solution for caching.
+        *   AWS ElastiCache can be considered if free tier eligibility is met and preferred, but external services are often simpler for this scale.
 
-4.  **Considerations:**
-    *   **Simplicity:** Prioritize solutions that are easy to set up and manage.
-    *   **Cost:** Leverage free tiers or the most affordable options.
-    *   **LLM API Keys:** Securely manage LLM API keys using environment variables provided by the hosting platform.
+4.  **Recipe Data (JSON files):**
+    *   Include JSON recipe files within the AWS Lambda deployment package.
+    *   Alternatively, store them in an S3 bucket that the Lambda function has read access to.
+
+5.  **Key Deployment Considerations:**
+    *   **Simplicity:** Prioritize solutions that are easy to set up and manage, especially given the AWS components.
+    *   **Cost:** Maximize use of AWS free tiers and free tiers from other services (like Redis providers).
+    *   **LLM API Keys & Credentials:** Securely manage all API keys (Mistral, etc.) and AWS credentials using AWS Secrets Manager or Lambda environment variables encrypted at rest.
+    *   **IAM Roles:** Use appropriate IAM roles for Lambda functions to grant least-privilege access to other AWS services (e.g., S3 if recipe data is stored there).
