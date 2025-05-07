@@ -43,7 +43,7 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
 resource "aws_lambda_function" "api_lambda" {
   function_name = local.api_lambda_name
   role          = aws_iam_role.lambda_execution_role.arn
-  handler       = "lambda.handler" // Assuming your entry point is lambda.js exporting a handler
+  handler       = "server.handler" // Assuming your entry point is server.js exporting a handler
   runtime       = "nodejs18.x"     // Or your preferred Node.js runtime
 
   filename         = local.lambda_zip_path

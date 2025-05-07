@@ -50,6 +50,14 @@ app.use((err, req, res, next) => {
   res.status(500).send("Something broke!");
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+// Export the handler for AWS Lambda
+const serverless = require('serverless-http');
+module.exports.handler = serverless(app);
+
+// Conditional listen for local development
+// AWS_LAMBDA_FUNCTION_NAME is an environment variable set by AWS Lambda
+if (!process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
