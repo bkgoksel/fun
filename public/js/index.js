@@ -19,7 +19,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             recipes.forEach(recipe => {
                 const listItem = document.createElement('li');
                 const link = document.createElement('a');
-                link.href = `recipe.html?id=${encodeURIComponent(recipe.id)}`;
+                // Use extensionless URL for recipe links
+                link.href = `/recipe?id=${encodeURIComponent(recipe.id)}`;
                 link.textContent = recipe.title;
                 listItem.appendChild(link);
                 recipeListElement.appendChild(listItem);

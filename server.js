@@ -12,7 +12,9 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 
 // Serve static files from the "public" directory
-app.use(express.static(path.join(__dirname, "public")));
+// - index: 'index.html' (default) serves index.html for directory root requests (e.g., '/')
+// - extensions: ['html'] allows accessing files like /recipe instead of /recipe.html
+app.use(express.static(path.join(__dirname, "public"), { extensions: ['html'] }));
 
 // Mount the recipe routes
 app.use("/api", recipeRoutes);
