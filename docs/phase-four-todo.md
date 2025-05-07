@@ -145,7 +145,7 @@ This document outlines the tasks required to deploy the Storied Recipes project 
   - Output S3 bucket name.
   - Output CloudFront distribution ID and domain name.
   - Output website URLs and ACM certificate ARN.
-- **TODO: Manual/Scripted Step (Outside Terraform): Deploy Frontend Files:**
+- **DONE: Manual/Scripted Step (Outside Terraform): Deploy Frontend Files:**
   - After Terraform applies, use AWS CLI to sync `public/` directory (from project root) to the S3 bucket:
     `aws s3 sync public/ "s3://$(terraform -chdir=terraform output -raw s3_site_bucket_name)" --delete`
 
@@ -155,7 +155,7 @@ This document outlines the tasks required to deploy the Storied Recipes project 
 - **DONE:** S3 bucket and CloudFront distribution are created in AWS.
 - **DONE:** ACM certificate is issued and validated.
 - **DONE:** Cloudflare DNS record is created/updated.
-- **TODO:** Frontend files are synced to S3.
+- **DONE:** Frontend files are synced to S3.
 - **TODO:** Accessing the domain via HTTPS (e.g., `https://your.domain.com`) serves `index.html`.
 - **TODO:** Navigation to `/recipe` (extensionless) works.
 
