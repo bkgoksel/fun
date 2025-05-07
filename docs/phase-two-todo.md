@@ -78,12 +78,13 @@ This document outlines the tasks required to implement the frontend core functio
 
 **Testing:**
 
-- **TODO:** Add enough initial content (or set a small height for the story container) in `public/recipe.html` or `public/js/recipe.js` so that scrolling is possible.
-- **TODO:** Open `public/recipe.html` in a browser.
+- **DONE:** Scroll detection logic has been added to `public/js/recipe.js`. (Task 3 Action Item completed)
+- **TODO:** Ensure the initial story segment loaded in Task 2 is long enough to allow scrolling. (If not, temporarily add more static text to `story-content` in `public/recipe.html` or adjust `min-height` of `#story-content` in `public/css/style.css` for testing purposes).
+- **TODO:** Open `public/recipe.html` in a browser (ensure backend server is running).
 - **TODO:** Open the browser's developer console.
 - **TODO:** Scroll down the page.
-- **TODO:** Verify that the "User is near the bottom..." message is logged to the console when scrolling close to the end of the content.
-- **TODO:** Test that the message doesn't log excessively (e.g., use a flag to prevent multiple triggers while content is loading).
+- **TODO:** Verify that the "User is near the bottom, time to fetch more story!" message is logged to the console when scrolling close to the end of the content.
+- **TODO:** Test that the console message doesn't log excessively if scrolling stops/starts near the threshold without new content growth (the `isFetchingMoreStory` flag will be fully managed in later tasks).
 
 ## 4. Fetch More Story
 
