@@ -20,8 +20,8 @@ This document outlines the tasks required to implement the frontend core functio
 
 - **DONE:** Create `public`, `public/css`, and `public/js` directories. (Shell command `mkdir -p public/css public/js` will be suggested).
 - **DONE:** Create the `public/recipe.html` file with the basic structure. (Linked `public/css/style.css` also created).
-- **TODO:** Open `public/recipe.html` directly in a web browser.
-- **TODO:** Verify that the title area, an empty story container, and the "Ingredients" / "Directions" headers are visible and laid out as expected.
+- **DONE:** Open `public/recipe.html` directly in a web browser.
+- **DONE:** Verify that the title area, an empty story container, and the "Ingredients" / "Directions" headers are visible and laid out as expected.
 
 ## 2. Initial Data Fetch & Display
 
@@ -47,7 +47,7 @@ This document outlines the tasks required to implement the frontend core functio
 
 **Testing:**
 
-- **TODO:** Ensure a mock or actual backend endpoint `GET /api/recipe/grandmother-secret-cookies/initial` is available and returns a JSON object like:
+- **DONE:** Ensure a mock or actual backend endpoint `GET /api/recipe/grandmother-secret-cookies/initial` is available and returns a JSON object like:
 
   ```json
   {
@@ -58,10 +58,10 @@ This document outlines the tasks required to implement the frontend core functio
 
 - **DONE:** Create `public/js/` directory. (Handled by `mkdir -p public/css public/js` during Task 1).
 - **DONE:** Create `public/js/recipe.js` with the fetching and rendering logic.
-- **TODO:** Open `public/recipe.html` in a browser (after ensuring the backend server is running and the `/api/recipe/grandmother-secret-cookies/initial` endpoint is functional).
-- **TODO:** Verify that the recipe title (e.g., "Grandmother's Secret Cookies") is displayed.
-- **TODO:** Verify that the initial story segment (e.g., "It was a dark and stormy night...") is displayed in the story area.
-- **TODO:** Check the browser's developer console for any JavaScript errors or failed network requests.
+- **DONE:** Open `public/recipe.html` in a browser (after ensuring the backend server is running and the `/api/recipe/grandmother-secret-cookies/initial` endpoint is functional).
+- **DONE:** Verify that the recipe title (e.g., "Grandmother's Secret Cookies") is displayed.
+- **DONE:** Verify that the initial story segment (e.g., "It was a dark and stormy night...") is displayed in the story area.
+- **DONE:** Check the browser's developer console for any JavaScript errors or failed network requests.
 
 ## 3. Scroll Detection
 
