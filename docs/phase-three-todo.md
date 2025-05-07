@@ -115,29 +115,30 @@ This document outlines the tasks required to implement UX refinements and polish
 
 **Actions & Files:**
 
-*   **TODO: Create `public/index.html`:**
+*   **DONE: Create `public/index.html`:**
     *   **Purpose:** Main page for listing recipes.
-    *   **Content:** Basic HTML structure. Include a title like "Storied Recipes" and an unordered list (`<ul>`) where recipe links will go. Link to `index.js` and a CSS file.
-*   **TODO: Create `public/js/index.js`:**
+    *   **Content:** Basic HTML structure with a `ul#recipe-list`, linked to `js/index.js` and `css/index.css`.
+*   **DONE: Create `public/js/index.js`:**
     *   **Purpose:** Fetch and display the list of recipes.
     *   **Content:**
-        *   On `DOMContentLoaded`, fetch data from a new `/api/recipes` endpoint.
-        *   For each recipe in the response (e.g., `{id: "recipe-id", title: "Recipe Title"}`), create an `<li>` with an `<a>` tag pointing to `recipe.html?id={recipe_id}`.
-        *   Append these list items to the `<ul>` in `index.html`.
-*   **TODO: Modify `server.js` (or a new `routes/index.js` and mount it):**
+        *   On `DOMContentLoaded`, fetches data from `/api/recipes`.
+        *   For each recipe, creates an `<li>` with an `<a>` tag pointing to `recipe.html?id={recipe_id}`.
+        *   Appends these list items to `ul#recipe-list`.
+*   **DONE: Modify `server.js`:**
     *   **Purpose:** Add an endpoint to serve the list of recipes.
     *   **Content:**
-        *   Define a `GET /api/recipes` endpoint.
-        *   This endpoint should read the `data/recipes/` directory, parse each JSON file to get its `id` and `title`, and return an array of these objects.
-*   **TODO: Modify `public/js/recipe.js`:**
+        *   Defined a `GET /api/recipes` endpoint.
+        *   This endpoint reads the `data/recipes/` directory, parses each JSON file to get its `id` and `title`, and returns an array of these objects.
+*   **DONE: Modify `public/js/recipe.js`:**
     *   **Purpose:** Make the recipe page load a recipe based on a URL parameter.
     *   **Content:**
         *   At the beginning of the `DOMContentLoaded` listener:
-            *   Get the `id` from `URLSearchParams` (e.g., `new URLSearchParams(window.location.search).get('id')`).
-            *   If an `id` is present, use it for `RECIPE_ID` instead of the hardcoded one.
-            *   If no `id` is present, either default to a specific recipe, show an error message, or redirect to `index.html`.
-*   **TODO: Create or Modify CSS (`public/css/style.css` or a new `public/css/index.css`):**
+            *   Gets the `id` from `URLSearchParams`.
+            *   If an `id` is present, uses it for `RECIPE_ID`.
+            *   If no `id` is present, defaults to "grandmother-secret-cookies" and logs a warning.
+*   **DONE: Create `public/css/index.css`:**
     *   **Purpose:** Style the `index.html` page.
+    *   **Content:** Added basic styles for the recipe list.
 
 **Testing:**
 

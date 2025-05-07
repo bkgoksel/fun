@@ -1,0 +1,24 @@
+/* Styles specific to index.html */
+#recipe-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+#recipe-list li {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+#recipe-list li a {
+    text-decoration: none;
+    color: #337ab7;
+    font-weight: bold;
+}
+
+#recipe-list li a:hover {
+    text-decoration: underline;
+    color: #23527c;
+}

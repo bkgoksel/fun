@@ -4,8 +4,15 @@ document.addEventListener("DOMContentLoaded", () => {
     .querySelector("h1");
   const storyContentElement = document.getElementById("story-content");
 
-  // Hardcoded recipe ID for now, as per phase-two-todo.md
-  const RECIPE_ID = "grandmother-secret-cookies";
+  // Determine RECIPE_ID from URL query parameter or use default
+  const urlParams = new URLSearchParams(window.location.search);
+  const recipeIdFromUrl = urlParams.get('id');
+  const RECIPE_ID = recipeIdFromUrl || "grandmother-secret-cookies"; // Fallback to default
+
+  if (!recipeIdFromUrl) {
+    console.warn("No recipe ID found in URL, using default:", RECIPE_ID);
+  }
+
 
   async function fetchInitialData(recipeId) {
     try {
