@@ -23,10 +23,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (data.initialStorySeed) {
-        await renderStorySegmentWordByWord(
-          data.initialStorySeed,
-          storyContentElement,
-        );
+        // Render initial story segment all at once
+        const p = document.createElement("p");
+        p.textContent = data.initialStorySeed;
+        storyContentElement.appendChild(p);
+        // Ensure the page is scrolled correctly after adding initial content
+        window.scrollTo(0, document.body.scrollHeight);
       } else {
         console.warn("No initial story segment received from API.");
         storyContentElement.textContent =
