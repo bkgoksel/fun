@@ -51,9 +51,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const WORD_RENDER_DELAY_MS = 10; // Delay for word-by-word rendering
 
   async function renderStorySegmentWordByWord(segmentText, targetElement) {
-    console.log("[DEBUG] renderStorySegmentWordByWord called with segment:", JSON.stringify(segmentText));
+    console.log(
+      "[DEBUG] renderStorySegmentWordByWord called with segment:",
+      JSON.stringify(segmentText),
+    );
     if (!segmentText || segmentText.trim() === "") {
-      console.log("[DEBUG] renderStorySegmentWordByWord: segment is empty or only whitespace, returning.");
+      console.log(
+        "[DEBUG] renderStorySegmentWordByWord: segment is empty or only whitespace, returning.",
+      );
       return; // Nothing to render
     }
 
@@ -78,16 +83,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
     for (const part of parts) {
       if (part.length > 0) {
-        console.log("[DEBUG] renderStorySegmentWordByWord: appending part:", JSON.stringify(part));
+        console.log(
+          "[DEBUG] renderStorySegmentWordByWord: appending part:",
+          JSON.stringify(part),
+        );
         paragraphElement.textContent += part;
         // Scroll the paragraph itself into view, aligning its bottom with the visible area's bottom.
-        paragraphElement.scrollIntoView({ block: 'end', behavior: 'auto' }); 
+        paragraphElement.scrollIntoView({ block: "end", behavior: "auto" });
         await new Promise((resolve) =>
           setTimeout(resolve, WORD_RENDER_DELAY_MS),
         );
       }
     }
-    console.log("[DEBUG] renderStorySegmentWordByWord finished for segment:", JSON.stringify(segmentText));
+    console.log(
+      "[DEBUG] renderStorySegmentWordByWord finished for segment:",
+      JSON.stringify(segmentText),
+    );
   }
 
   async function fetchMoreStory(recipeId, context) {
@@ -104,9 +115,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const data = await response.json();
 
-      if (data.nextStorySegment) {
+      if (data.continuation) {
         await renderStorySegmentWordByWord(
-          data.nextStorySegment,
+          data.continuation,
           storyContentElement,
         );
       } else {
