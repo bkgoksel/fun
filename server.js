@@ -7,8 +7,12 @@ const express = require("express");
 const path = require("path"); // Import path module
 const fs = require('fs').promises; // Import fs promises
 const recipeRoutes = require("./routes/recipes");
+const cors = require('cors'); // Import CORS middleware
 
 const app = express();
+
+// Enable CORS for all routes
+app.use(cors());
 const PORT = process.env.PORT || 3000;
 
 // Middleware to parse JSON bodies (if you plan to accept JSON in POST/PUT requests later)
