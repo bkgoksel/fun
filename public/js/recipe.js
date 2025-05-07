@@ -55,6 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const SCROLL_THRESHOLD = 200; // Pixels from bottom to trigger fetch
   const CHARS_FOR_CONTEXT = 1000; // Number of characters to send as context
   const WORD_RENDER_DELAY_MS = 10; // Delay for word-by-word rendering
+  const AUTOSCROLL_BOTTOM_THRESHOLD = 250; // Min pixels from bottom for auto-scroll to be active during rendering
 
   async function renderStorySegmentWordByWord(segmentText, targetElement) {
     console.log(
@@ -94,8 +95,14 @@ document.addEventListener("DOMContentLoaded", () => {
           JSON.stringify(part),
         );
         paragraphElement.textContent += part;
-        // Scroll the paragraph itself into view, aligning its bottom with the visible area's bottom.
-        paragraphElement.scrollIntoView({ block: "end", behavior: "auto" });
+        
+        // Only auto-scroll if the user hasn't scrolled up significantly
+        const isUserNearBottom = (window.scrollY + window.innerHeight) >= (document.body.offsetHeight - AUTOSCROLL_BOTTOM_THRESHOLD);
+        if (isUserNearBottom) {
+          // Scroll the paragraph itself into view, aligning its bottom with the visible area's bottom.
+          paragraphElement.scrollIntoView({ block: "end", behavior: "auto" });
+        }
+        
         await new Promise((resolve) =>
           setTimeout(resolve, WORD_RENDER_DELAY_MS),
         );

@@ -90,16 +90,17 @@ This document outlines the tasks required to implement UX refinements and polish
 
 **Actions & Files:**
 
-*   **TODO: Modify `public/js/recipe.js`:**
-    *   **Purpose:** Improve scroll behavior during rendering.
+*   **DONE: Modify `public/js/recipe.js`:**
+    *   **Purpose:** Improve scroll behavior during rendering, especially when the user scrolls up.
     *   **Content:**
         *   In `renderStorySegmentWordByWord`:
-            *   The current `paragraphElement.scrollIntoView({ block: 'end', behavior: 'auto' });` is a good start.
-            *   **User Scroll-Up Handling:**
-                *   Before calling `scrollIntoView`, check if the user has manually scrolled up significantly from the bottom of the content.
-                *   One way: Store `window.scrollY + window.innerHeight` before starting to render a word. Just before rendering the next word, if the current `window.scrollY + window.innerHeight` is much less than `document.body.offsetHeight - SOME_THRESHOLD` (e.g., user is not near the bottom anymore), then temporarily disable the automatic `scrollIntoView`.
-                *   Resume automatic scrolling if the user scrolls back down near the bottom, or when a new segment fetch is initiated.
-                *   This prevents "fighting" the user if they scroll up to re-read.
+            *   Defined `AUTOSCROLL_BOTTOM_THRESHOLD` (e.g., 250 pixels).
+            *   **User Scroll-Up Handling Implemented:**
+                *   Before each call to `paragraphElement.scrollIntoView({ block: 'end', behavior: 'auto' });` during word rendering, a check is performed:
+                  `const isUserNearBottom = (window.scrollY + window.innerHeight) >= (document.body.offsetHeight - AUTOSCROLL_BOTTOM_THRESHOLD);`
+                *   The `scrollIntoView` is only called if `isUserNearBottom` is true.
+                *   This effectively disables automatic scrolling if the user has scrolled up away from the bottom of the content, preventing the page from "fighting" their scroll.
+                *   Automatic scrolling resumes if the user scrolls back down into the threshold zone.
 
 **Testing:**
 
