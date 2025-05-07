@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs').promises; // Use promises version of fs
 const path = require('path');
+const { generateStoryContinuation } = require('../services/llmService'); // Import the LLM service
 
 const router = express.Router();
 
@@ -26,6 +27,31 @@ router.get('/recipe/:recipeId/initial', async (req, res, next) => {
             // Pass error to the next error-handling middleware
             next(error); 
         }
+    }
+});
+
+// GET /api/recipe/:recipeId/continue
+router.get('/recipe/:recipeId/continue', async (req, res, next) => {
+    const { recipeId } = req.params; // recipeId might be used later for context or specific prompts
+    const { context } = req.query;
+
+    if (!context) {
+        return res.status(400).json({ message: "Query parameter 'context' is required." });
+    }
+
+    try {
+        // For now, we directly use the context as the prompt.
+        // Later, this could be combined with recipe-specific instructions or the initial seed.
+        const promptText = context; 
+        const storySegment = await generateStoryContinuation(promptText);
+        res.json({
+            recipeId: recipeId,
+            continuation: storySegment
+        });
+    } catch (error) {
+        console.error(`Error generating story continuation for recipe ${recipeId}:`, error);
+        // Pass error to the next error-handling middleware
+        next(error);
     }
 });
 
