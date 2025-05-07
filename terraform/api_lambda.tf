@@ -47,7 +47,12 @@ resource "aws_lambda_function" "api_lambda" {
   runtime       = "nodejs18.x"     // Or your preferred Node.js runtime
 
   filename         = local.lambda_zip_path
-  source_code_hash = filebase64sha256(local.lambda_zip_path) // Re-deploy on zip change
+  # The source_code_hash uses try() to allow `terraform plan` to succeed even if
+  # lambda_package.zip doesn't exist yet.
+  # However, lambda_package.zip MUST exist in the terraform/ directory when running `terraform apply`
+  # for the Lambda function to be deployed correctly.
+  # The fallback hash is the base64sha256 of an empty file: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+  source_code_hash = try(filebase64sha256(local.lambda_zip_path), "47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=") // Re-deploy on zip change
 
   timeout     = 30  // seconds
   memory_size = 256 // MB
