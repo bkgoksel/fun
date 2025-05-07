@@ -27,3 +27,13 @@ output "acm_certificate_arn_us_east_1" {
   description = "ARN of the ACM certificate in us-east-1 for CloudFront."
   value       = aws_acm_certificate.site_cert.arn
 }
+
+output "api_gateway_invoke_url" {
+  description = "The invoke URL for the API Gateway stage (e.g., prod)."
+  value       = aws_api_gateway_stage.prod.invoke_url
+}
+
+output "api_domain_name_cloudflare" {
+  description = "The custom API domain name managed by Cloudflare."
+  value       = "api.${var.domain_name}"
+}

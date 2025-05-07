@@ -178,43 +178,46 @@ This document outlines the tasks required to deploy the Storied Recipes project 
 
 **Actions & Files (Terraform - in `terraform/` directory):**
 
-- **TODO: Create `terraform/api_lambda.tf`:**
-  - **`aws_iam_role` (lambda_execution_role):** For Lambda functions.
-  - **`aws_iam_policy` or `aws_iam_role_policy_attachment`:**
+- **DONE: Create `terraform/api_lambda.tf`:**
+  - **DONE: `aws_iam_role` (lambda_execution_role):** For Lambda functions.
+  - **DONE: `aws_iam_role_policy_attachment`:**
     - Basic Lambda execution policy (CloudWatch Logs).
-    - Permissions to access S3 if recipe data is stored there.
-    - Permissions to access Secrets Manager if API keys/Redis connection strings are stored there.
-  - **Packaging Lambda Code (Manual/Scripted Step):**
-    - Create a zip file of the Node.js application (e.g., `cd .. && zip -r terraform/lambda_package.zip . -x './public/*' -x './data/*' -x './terraform/*' -x './docs/*' -x '.git*' -x '*.md'`). Adjust exclusion patterns as needed.
-    - Alternatively, if recipe data is included in the package, adjust zip command.
-  - **`aws_lambda_function`:**
-    - Reference the created IAM role.
-    - Specify runtime (e.g., `nodejs18.x` or newer).
-    - Specify handler (e.g., `lambda.handler` if using a wrapper like `aws-serverless-express`, or specific file/handler).
-    - Upload the `lambda_package.zip`.
-    - Configure environment variables:
-      - `REDIS_URL` (from `var.redis_connection_string` or Secrets Manager).
-      - `MISTRAL_API_KEY` (from `var.mistral_api_key` or Secrets Manager).
+    - TODO: Add permissions for S3 if recipe data is stored there (Phase 4, Step 4).
+    - TODO: Add permissions for Secrets Manager if API keys/Redis AUTH token are stored there (Phase 4, Step 3).
+    - TODO: Add `AWSLambdaVPCAccessExecutionRole` if Lambda needs VPC access for ElastiCache (Phase 4, Step 3).
+  - **TODO: Packaging Lambda Code (Manual/Scripted Step):**
+    - Create a zip file of the Node.js application (e.g., `cd .. && zip -r terraform/lambda_package.zip . -x './public/*' -x './data/*' -x './terraform/*' -x './docs/*' -x '.git*' -x '*.md' -x 'node_modules/*'`). Adjust exclusion patterns as needed. Ensure `lambda.js` (or your handler entry point) is at the root of the zip. Run `npm install --omit=dev` before zipping if `node_modules` are included.
+    - Place `lambda_package.zip` in the `terraform/` directory.
+  - **DONE: `aws_lambda_function`:**
+    - References the created IAM role.
+    - Specifies runtime and handler (e.g., `lambda.handler`).
+    - Uploads `lambda_package.zip`.
+    - Configures environment variables:
+      - `MISTRAL_API_KEY` (from `var.mistral_api_key`).
       - `NODE_ENV = "production"`.
-  - **`aws_api_gateway_rest_api`:** Create the REST API.
-  - **`aws_api_gateway_resource`:** Define resources (e.g., `/api`, `/recipes`, `/recipe/{recipeId}/initial`, `/recipe/{recipeId}/continue`).
-  - **`aws_api_gateway_method`:** Define methods for each resource (e.g., GET).
-  - **`aws_api_gateway_integration`:** Integrate API Gateway methods with the Lambda function.
-    - Type: `AWS_PROXY`.
-  - **`aws_api_gateway_deployment`:** Deploy the API. Depends on methods and integrations.
-  - **`aws_api_gateway_stage`:** Define a stage (e.g., `prod`).
-  - **`aws_lambda_permission`:** Grant API Gateway permission to invoke the Lambda function.
-  - **`cloudflare_record`:**
-    - Create CNAME record for the API (e.g., `api.your.domain.com`) pointing to the API Gateway invoke URL.
-- **TODO: Update `terraform/outputs.tf`:**
-  - Output API Gateway invoke URL.
+      - `REDIS_HOST = ""` (placeholder - to be updated in Phase 4, Step 3).
+      - `REDIS_PORT = ""` (placeholder - to be updated in Phase 4, Step 3).
+      - `REDIS_AUTH_TOKEN_SECRET_ARN = ""` (placeholder - to be updated in Phase 4, Step 3 if using Secrets Manager for token).
+    - TODO: Add VPC configuration for ElastiCache access (Phase 4, Step 3).
+  - **DONE: `aws_api_gateway_rest_api`:** Creates the REST API.
+  - **DONE: `aws_api_gateway_resource`:** Defines `/{proxy+}` resource.
+  - **DONE: `aws_api_gateway_method`:** Defines `ANY` method for `/{proxy+}`.
+  - **DONE: `aws_api_gateway_integration`:** Integrates `ANY` method with the Lambda function (AWS_PROXY).
+  - **DONE: `aws_api_gateway_deployment`:** Deploys the API.
+  - **DONE: `aws_api_gateway_stage`:** Defines a `prod` stage.
+  - **DONE: `aws_lambda_permission`:** Grants API Gateway permission to invoke the Lambda function.
+  - **DONE: `cloudflare_record`:**
+    - Creates CNAME record for `api.your.domain.com` pointing to the API Gateway regional endpoint.
+- **DONE: Update `terraform/outputs.tf`:**
+  - Output API Gateway invoke URL (`aws_api_gateway_stage.prod.invoke_url`).
+  - Output custom API domain name (`api.yourdomain.com`).
 
 **Testing:**
 
 - **TODO:** `terraform plan` and `terraform apply` complete successfully.
 - **TODO:** Lambda function, API Gateway, and IAM roles are created in AWS.
 - **TODO:** Cloudflare DNS record for the API is created/updated.
-- **TODO:** Test API endpoints (e.g., `/api/recipes`, `/api/recipe/some-id/initial`) using `curl` or Postman, pointing to the API Gateway URL or custom API domain.
+- **TODO:** After packaging and deploying Lambda code, test API endpoints (e.g., `https://api.yourdomain.com/api/recipes`, `https://api.yourdomain.com/api/recipe/some-id/initial`) using `curl` or Postman.
 - **TODO:** Check Lambda logs in CloudWatch for any errors.
 
 ## 3. Redis Deployment (AWS ElastiCache for Redis)
