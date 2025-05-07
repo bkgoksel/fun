@@ -35,9 +35,22 @@ variable "mistral_api_key" {
   # Best practice: Set via TF_VAR_mistral_api_key environment variable or store in Secrets Manager
 }
 
-variable "redis_connection_string" {
-  description = "Connection string for the Redis instance (e.g., from Render/Upstash)."
+variable "elasticache_node_type" {
+  description = "Node type for the ElastiCache Redis cluster (e.g., cache.t3.micro)."
   type        = string
-  sensitive   = true
-  # Best practice: Set via TF_VAR_redis_connection_string or store in Secrets Manager
+  default     = "cache.t3.micro"
 }
+
+variable "elasticache_num_nodes" {
+  description = "Number of cache nodes in the ElastiCache Redis cluster."
+  type        = number
+  default     = 1
+}
+
+# Optional: If you plan to use Redis AUTH token stored in AWS Secrets Manager
+# variable "redis_auth_token_secret_arn" {
+#   description = "ARN of the AWS Secrets Manager secret storing the Redis AUTH token."
+#   type        = string
+#   default     = "" # Set to actual ARN if used
+#   sensitive   = true
+# }
