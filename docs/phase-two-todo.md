@@ -54,8 +54,8 @@ This document outlines the tasks required to implement the frontend core functio
     }
     ```
 *   **DONE:** Create `public/js/` directory. (Handled by `mkdir -p public/css public/js` during Task 1).
-*   **TODO:** Create `public/js/recipe.js` with the fetching and rendering logic.
-*   **TODO:** Open `public/recipe.html` in a browser.
+*   **DONE:** Create `public/js/recipe.js` with the fetching and rendering logic.
+*   **TODO:** Open `public/recipe.html` in a browser (after ensuring the backend server is running and the `/api/recipe/grandmother-secret-cookies/initial` endpoint is functional).
 *   **TODO:** Verify that the recipe title (e.g., "Grandmother's Secret Cookies") is displayed.
 *   **TODO:** Verify that the initial story segment (e.g., "It was a dark and stormy night...") is displayed in the story area.
 *   **TODO:** Check the browser's developer console for any JavaScript errors or failed network requests.
