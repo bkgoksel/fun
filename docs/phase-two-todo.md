@@ -146,13 +146,13 @@ This document outlines the tasks required to implement the frontend core functio
 
 **Testing:**
 
-- **TODO:** Open `public/recipe.html` in a browser.
-- **TODO:** Scroll down to trigger fetching and rendering a new story segment.
-- **TODO:** Verify that the new story segment appears in the `story-content` div, with words appearing one at a time.
-- **TODO:** Verify that the "Ingredients" and "Directions" headers are pushed further down the page as new content is added.
-- **TODO:** Verify that the page scrolls smoothly to keep the newly appearing words in view.
-- **TODO:** Adjust timing of word-by-word rendering for a pleasant effect.
-- **TODO:** Ensure that if a user scrolls up during word-by-word rendering, the rendering continues correctly without forcing the scroll position back down until the user stops scrolling up. (This might be a refinement for Phase 3, but good to note).
+- **DONE:** Open `public/recipe.html` in a browser.
+- **DONE:** Scroll down to trigger fetching and rendering a new story segment.
+- **DONE:** Verify that the new story segment appears in the `story-content` div, with words appearing one at a time.
+- **DONE:** Verify that the "Ingredients" and "Directions" headers are pushed further down the page as new content is added.
+- **DONE:** Verify that the page scrolls smoothly to keep the newly appearing words in view.
+- **DONE:** Adjust timing of word-by-word rendering for a pleasant effect.
+- **DONE:** Ensure that if a user scrolls up during word-by-word rendering, the rendering continues correctly without forcing the scroll position back down until the user stops scrolling up. (This might be a refinement for Phase 3, but good to note).
 
 ---
 
