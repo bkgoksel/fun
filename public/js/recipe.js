@@ -40,22 +40,50 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  fetchInitialData(RECIPE_ID);
+  fetchInitialData(RECIPE_ID); // Load initial data
 
-  // --- Task 3: Scroll Detection ---
+  // --- Task 3 & 4: Scroll Detection & Fetch More Story ---
   let isFetchingMoreStory = false; // Flag to prevent multiple fetches
   const SCROLL_THRESHOLD = 200; // Pixels from bottom to trigger fetch
+  const CHARS_FOR_CONTEXT = 250; // Number of characters to send as context
+
+  async function fetchMoreStory(recipeId, context) {
+    console.log("Attempting to fetch more story with context snippet:", context.substring(0, 50) + "...");
+    try {
+      const response = await fetch(`/api/recipe/${recipeId}/continue?context=${encodeURIComponent(context)}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      if (data.nextStorySegment) {
+        console.log("Next story segment received:", data.nextStorySegment);
+        // Task 5 will handle rendering this segment word-by-word.
+        // For now, we just log it as per Task 4 requirements.
+      } else {
+        console.warn("No next story segment received from API or segment was empty.");
+      }
+    } catch (error) {
+      console.error("Error fetching more story:", error);
+    } finally {
+      isFetchingMoreStory = false; // Reset flag regardless of outcome
+      console.log("isFetchingMoreStory set to false");
+    }
+  }
 
   window.addEventListener('scroll', () => {
-    // Check if we're near the bottom and not already fetching
     if (
-      !isFetchingMoreStory &&
+      !isFetchingMoreStory && // Only proceed if not already fetching
       (window.innerHeight + window.scrollY) >= (document.body.offsetHeight - SCROLL_THRESHOLD)
     ) {
-      console.log("User is near the bottom, time to fetch more story!");
-      // For now, just log. In Task 4, this will call fetchMoreStory().
-      // To prevent rapid logging if content doesn't grow, we'd set isFetchingMoreStory here.
-      // isFetchingMoreStory = true; // Will be properly managed in Task 4 & 5
+      isFetchingMoreStory = true; // Set flag immediately to prevent multiple triggers
+      console.log("isFetchingMoreStory set to true. User is near the bottom.");
+
+      const fullText = storyContentElement.innerText;
+      // Use the last CHARS_FOR_CONTEXT characters of the current story as context
+      const context = fullText.length > CHARS_FOR_CONTEXT ? fullText.slice(-CHARS_FOR_CONTEXT) : fullText;
+      
+      fetchMoreStory(RECIPE_ID, context);
     }
   });
 });
