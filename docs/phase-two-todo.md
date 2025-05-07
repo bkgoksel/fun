@@ -80,11 +80,11 @@ This document outlines the tasks required to implement the frontend core functio
 
 - **DONE:** Scroll detection logic has been added to `public/js/recipe.js`. (Task 3 Action Item completed)
 - **DONE:** The `initialStorySeed` in `data/recipes/grandmother-secret-cookies.json` has been lengthened to help ensure scrolling is necessary for testing. The `min-height` of `#story-content` in `public/css/style.css` is currently `100px` and can be adjusted if further needed.
-- **TODO:** Open `public/recipe.html` in a browser (ensure backend server is running).
-- **TODO:** Open the browser's developer console.
-- **TODO:** Scroll down the page.
-- **TODO:** Verify that the "User is near the bottom, time to fetch more story!" message is logged to the console when scrolling close to the end of the content.
-- **TODO:** Test that the console message doesn't log excessively if scrolling stops/starts near the threshold without new content growth (the `isFetchingMoreStory` flag will be fully managed in later tasks).
+- **DONE:** Open `public/recipe.html` in a browser (ensure backend server is running).
+- **DONE:** Open the browser's developer console.
+- **DONE:** Scroll down the page.
+- **DONE:** Verify that the "User is near the bottom, time to fetch more story!" message is logged to the console when scrolling close to the end of the content.
+- **DONE:** Test that the console message doesn't log excessively if scrolling stops/starts near the threshold without new content growth (the `isFetchingMoreStory` flag will be fully managed in later tasks).
 
 ## 4. Fetch More Story
 
