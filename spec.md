@@ -49,13 +49,12 @@
     *   Standard HTML/CSS.
     *   `fetch` API (built-in) for HTTP requests.
 *   **Backend:**
-    *   Language/Framework:
-        *   Python (FastAPI, Flask) - Good for LLM integration and rapid development.
-        *   Node.js (Express.js) - Efficient for I/O-bound tasks, JavaScript ecosystem.
-    *   Caching: Redis or Memcached for high-performance caching.
-    *   Database (for recipe metadata): PostgreSQL, MongoDB, or even simple file-based storage for a small number of recipes.
+    *   Language/Framework: Node.js (e.g., using Express.js) - Efficient for I/O-bound tasks, JavaScript ecosystem.
+    *   Caching: Redis for high-performance caching.
+    *   Database (for recipe metadata): JSON files for simple storage of recipe data.
 *   **LLM:**
-    *   A model known for speed and low cost (e.g., smaller variants of open-source models, or specific API offerings from providers like Groq, Together AI, or cost-effective tiers of larger providers).
+    *   Initial Choice: Mistral API (leveraging their free tier for development).
+    *   Design: The LLM interaction module will be designed flexibly to allow for swapping out different LLM providers or models in the future.
 
 **C. Development Phases:**
 
