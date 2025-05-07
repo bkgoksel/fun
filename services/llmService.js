@@ -1,4 +1,4 @@
-const MistralClient = require('@mistralai/mistralai');
+const { Mistral } = require('@mistralai/mistralai'); // Corrected import
 
 const apiKey = process.env.MISTRAL_API_KEY;
 
@@ -16,12 +16,12 @@ async function generateStoryContinuation(promptText) {
         throw new Error(errorMessage);
     }
 
-    const client = new MistralClient(apiKey);
+    const client = new Mistral({apiKey: apiKey}); // Corrected instantiation
 
     try {
         // Using a model suitable for free tier or general use.
         // Check Mistral's documentation for the most current and appropriate model identifiers.
-        const chatResponse = await client.chat({
+        const chatResponse = await client.chat.complete({ // Corrected method call
             model: 'mistral-tiny', // Example model, adjust as needed. 'open-mistral-7b' is another common one.
             messages: [{ role: 'user', content: promptText }],
         });
