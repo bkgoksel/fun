@@ -51,7 +51,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const WORD_RENDER_DELAY_MS = 10; // Delay for word-by-word rendering
 
   async function renderStorySegmentWordByWord(segmentText, targetElement) {
+    console.log("[DEBUG] renderStorySegmentWordByWord called with segment:", JSON.stringify(segmentText));
     if (!segmentText || segmentText.trim() === "") {
+      console.log("[DEBUG] renderStorySegmentWordByWord: segment is empty or only whitespace, returning.");
       return; // Nothing to render
     }
 
@@ -76,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     for (const part of parts) {
       if (part.length > 0) {
+        console.log("[DEBUG] renderStorySegmentWordByWord: appending part:", JSON.stringify(part));
         paragraphElement.textContent += part;
         // Scroll the paragraph itself into view, aligning its bottom with the visible area's bottom.
         paragraphElement.scrollIntoView({ block: 'end', behavior: 'auto' }); 
@@ -84,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       }
     }
+    console.log("[DEBUG] renderStorySegmentWordByWord finished for segment:", JSON.stringify(segmentText));
   }
 
   async function fetchMoreStory(recipeId, context) {
