@@ -1,4 +1,7 @@
-require('dotenv').config(); // Load environment variables from .env file at the very top
+// Load environment variables from .env file only for local development
+if (!process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  require('dotenv').config(); 
+}
 
 const express = require("express");
 const path = require("path"); // Import path module
