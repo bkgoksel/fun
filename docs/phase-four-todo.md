@@ -99,12 +99,25 @@ This document outlines the tasks required to deploy the Storied Recipes project 
       # Best practice: Set via TF_VAR_mistral_api_key environment variable or store in Secrets Manager
     }
 
-    variable "redis_connection_string" {
-      description = "Connection string for the Redis instance (e.g., from Render/Upstash)."
+    variable "elasticache_node_type" {
+      description = "Node type for the ElastiCache Redis cluster (e.g., cache.t3.micro)."
       type        = string
-      sensitive   = true
-      # Best practice: Set via TF_VAR_redis_connection_string or store in Secrets Manager
+      default     = "cache.t3.micro"
     }
+
+    variable "elasticache_num_nodes" {
+      description = "Number of cache nodes in the ElastiCache Redis cluster."
+      type        = number
+      default     = 1
+    }
+
+    # Optional: If you plan to use Redis AUTH token stored in AWS Secrets Manager
+    # variable "redis_auth_token_secret_arn" {
+    #   description = "ARN of the AWS Secrets Manager secret storing the Redis AUTH token."
+    #   type        = string
+    #   default     = "" # Set to actual ARN if used
+    #   sensitive   = true
+    # }
     ```
 
 - **DONE: Create `terraform/outputs.tf` (initially empty or with placeholders):**
@@ -204,30 +217,66 @@ This document outlines the tasks required to deploy the Storied Recipes project 
 - **TODO:** Test API endpoints (e.g., `/api/recipes`, `/api/recipe/some-id/initial`) using `curl` or Postman, pointing to the API Gateway URL or custom API domain.
 - **TODO:** Check Lambda logs in CloudWatch for any errors.
 
-## 3. Redis Deployment (External Service - Render/Upstash)
+## 3. Redis Deployment (AWS ElastiCache for Redis)
 
-**Goal:** Set up a Redis instance and configure the backend to use it.
+**Goal:** Deploy a managed Redis instance using AWS ElastiCache within your VPC and configure the backend Lambda to use it.
 
-**Actions & Files:**
+**Actions & Files (Terraform - in `terraform/` directory):**
 
-- **TODO: Manual Setup (Render/Upstash):**
-  - Create a free-tier Redis instance on Render, Upstash, or similar.
-  - Obtain the connection string/URL, host, port, and password.
-- **TODO: Securely Store Redis Credentials:**
-  - **Option A (Terraform Variable):** Pass as `TF_VAR_redis_connection_string` during `terraform apply`. (Less secure for sensitive data if state is not properly secured or plan output is logged).
-  - **Option B (AWS Secrets Manager - Recommended for production):**
-    - Manually create a secret in AWS Secrets Manager to store the Redis connection string.
-    - **Terraform (`terraform/secrets.tf` or `api_lambda.tf`):**
-      - Use `aws_secretsmanager_secret_version` data source to retrieve the secret.
-      - Pass this to the Lambda function's environment variables.
-      - Ensure Lambda IAM role has permission to read this specific secret.
-- **TODO: Update `terraform/variables.tf` (if not already done):**
-  - Ensure `redis_connection_string` variable is defined.
+- **TODO: Define VPC Network Resources (if not already existing and suitable):**
+  - ElastiCache clusters are VPC-bound. You'll need a VPC and subnets.
+  - **`aws_vpc`:** If creating a new VPC. Often, a default VPC might be used for simplicity in smaller projects, but dedicated VPCs are best practice for production.
+  - **`aws_subnet`:** Create private subnets for ElastiCache. It's recommended to place ElastiCache in private subnets for security. These subnets must be in different Availability Zones for high availability.
+  - **`aws_internet_gateway` & `aws_nat_gateway`:** If your Lambda functions in private subnets need outbound internet access (e.g., to call external APIs like Mistral) and your ElastiCache is also in private subnets.
+  - **`aws_route_table` & `aws_route_table_association`:** To configure routing for your subnets.
+- **TODO: Create `terraform/elasticache.tf`:**
+  - **`aws_security_group` (for ElastiCache):**
+    - Create a security group for the ElastiCache cluster.
+    - Ingress rule: Allow TCP traffic on the Redis port (default 6379) from the Lambda function's security group.
+    - Egress rule: Allow all outbound traffic (or restrict as needed).
+  - **`aws_security_group` (for Lambda - if not already defined and suitable):**
+    - Ensure the Lambda function's security group allows outbound traffic to the ElastiCache security group on the Redis port.
+  - **`aws_elasticache_subnet_group`:**
+    - Create a subnet group for ElastiCache, referencing the private subnets created above.
+  - **`aws_elasticache_cluster` (for Redis):**
+    - Specify `engine = "redis"`.
+    - Choose `node_type` (e.g., `var.elasticache_node_type`).
+    - Set `num_cache_nodes` (e.g., `var.elasticache_num_nodes`).
+    - Reference the `aws_elasticache_subnet_group`.
+    - Reference the ElastiCache `aws_security_group` (via `security_group_ids`).
+    - Configure parameters like `port`, `parameter_group_name` (can use default).
+    - Consider `auth_token` for Redis authentication (recommended). If used, store the token securely (e.g., generate randomly and store in AWS Secrets Manager).
+    - Set `apply_immediately = true` for changes during development if desired, or manage maintenance windows.
+- **TODO: Update Lambda Configuration (`terraform/api_lambda.tf`):**
+  - **VPC Configuration:**
+    - Configure the `aws_lambda_function` to run within your VPC.
+    - Assign it to appropriate private subnets (typically the same ones as, or ones that can route to, the ElastiCache subnets).
+    - Assign it the Lambda security group that has access to ElastiCache.
+  - **Environment Variables:**
+    - `REDIS_HOST`: Set to `aws_elasticache_cluster.your_cluster_name.cache_nodes[0].address` or `aws_elasticache_cluster.your_cluster_name.primary_endpoint_address` (for cluster mode disabled or enabled respectively).
+    - `REDIS_PORT`: Set to `aws_elasticache_cluster.your_cluster_name.port`.
+    - `REDIS_AUTH_TOKEN_SECRET_ARN` (if using AUTH token via Secrets Manager): Set to `var.redis_auth_token_secret_arn` (Lambda will fetch it).
+- **TODO: Securely Store Redis AUTH Token (if used):**
+  - **AWS Secrets Manager (Recommended):**
+    - Manually create a secret or have Terraform generate a random string and store it.
+    - **Terraform (`terraform/secrets.tf` or `elasticache.tf`):**
+      - `random_password` resource to generate a token if not providing one.
+      - `aws_secretsmanager_secret` to store the token.
+      - `aws_secretsmanager_secret_version` to populate it.
+    - Update Lambda IAM role to allow reading this specific secret.
+    - The Lambda function will use the `REDIS_AUTH_TOKEN_SECRET_ARN` environment variable to fetch the token at runtime.
+- **TODO: Update `terraform/variables.tf`:**
+  - Ensure `elasticache_node_type`, `elasticache_num_nodes` are defined.
+  - Uncomment and use `redis_auth_token_secret_arn` if implementing AUTH token with Secrets Manager.
+- **TODO: Update `terraform/outputs.tf`:**
+  - Output ElastiCache primary endpoint address and port.
 
 **Testing:**
 
-- **TODO:** Backend API successfully connects to Redis (check Lambda logs after API calls that involve caching).
-- **TODO:** Data is being cached and retrieved from Redis (can be verified by checking Redis directly or observing API response times and `source` field if implemented).
+- **TODO:** `terraform plan` and `terraform apply` complete successfully, creating VPC (if new), subnets, security groups, and ElastiCache resources.
+- **TODO:** Lambda function is configured to run in the VPC and can connect to ElastiCache.
+- **TODO:** Backend API successfully connects to ElastiCache Redis (check Lambda logs after API calls that involve caching, ensure no timeout errors).
+- **TODO:** Data is being cached and retrieved from ElastiCache (can be verified by observing API response times, `source` field if implemented, or connecting to Redis via an EC2 instance in the same VPC for debugging).
 
 ## 4. Recipe Data Deployment
 
