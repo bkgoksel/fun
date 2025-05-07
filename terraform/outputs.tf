@@ -37,3 +37,13 @@ output "api_domain_name_cloudflare" {
   description = "The custom API domain name managed by Cloudflare."
   value       = "api.${var.domain_name}"
 }
+
+output "elasticache_redis_endpoint" {
+  description = "The primary endpoint address for the ElastiCache Redis cluster."
+  value       = aws_elasticache_cluster.redis_cluster.cache_nodes[0].address
+}
+
+output "elasticache_redis_port" {
+  description = "The port for the ElastiCache Redis cluster."
+  value       = aws_elasticache_cluster.redis_cluster.cache_nodes[0].port
+}

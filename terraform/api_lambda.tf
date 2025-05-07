@@ -31,11 +31,36 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-# Placeholder for Lambda VPC execution policy if connecting to ElastiCache in VPC
-# resource "aws_iam_role_policy_attachment" "lambda_vpc_execution" {
-#   role       = aws_iam_role.lambda_execution_role.name
-#   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+# Attach VPC access policy to Lambda role
+resource "aws_iam_role_policy_attachment" "lambda_vpc_execution" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
+# Optional: Attach policy to allow reading Redis AUTH token from Secrets Manager
+# resource "aws_iam_policy" "lambda_read_redis_secret" {
+#   name        = "${local.api_lambda_name}-read-redis-secret-policy"
+#   description = "Allow Lambda to read Redis AUTH token from Secrets Manager"
+#
+#   policy = jsonencode({
+#     Version = "2012-10-17",
+#     Statement = [
+#       {
+#         Action = [
+#           "secretsmanager:GetSecretValue"
+#         ],
+#         Effect   = "Allow",
+#         Resource = var.redis_auth_token_secret_arn # Use the variable holding the secret ARN
+#       }
+#     ]
+#   })
 # }
+#
+# resource "aws_iam_role_policy_attachment" "lambda_read_redis_secret_attach" {
+#   role       = aws_iam_role.lambda_execution_role.name
+#   policy_arn = aws_iam_policy.lambda_read_redis_secret.arn
+# }
+
 
 # Lambda Function
 # Note: The lambda_package.zip must be created manually and placed in this terraform directory.
@@ -59,12 +84,18 @@ resource "aws_lambda_function" "api_lambda" {
 
   environment {
     variables = {
-      NODE_ENV                      = "production"
-      MISTRAL_API_KEY               = var.mistral_api_key
-      // REDIS_HOST will be set once ElastiCache is deployed
-      // REDIS_PORT will be set once ElastiCache is deployed
-      // REDIS_AUTH_TOKEN_SECRET_ARN = var.redis_auth_token_secret_arn // Uncomment if using Redis Auth + Secrets Manager
+      NODE_ENV        = "production"
+      MISTRAL_API_KEY = var.mistral_api_key
+      REDIS_HOST      = aws_elasticache_cluster.redis_cluster.cache_nodes[0].address
+      REDIS_PORT      = aws_elasticache_cluster.redis_cluster.cache_nodes[0].port
+      # REDIS_AUTH_TOKEN_SECRET_ARN = var.redis_auth_token_secret_arn # Uncomment if using Redis Auth + Secrets Manager
     }
+  }
+
+  # VPC configuration to allow access to ElastiCache
+  vpc_config {
+    subnet_ids         = data.aws_subnets.default.ids
+    security_group_ids = [aws_security_group.lambda_sg.id]
   }
 
   tags = {
@@ -75,9 +106,13 @@ resource "aws_lambda_function" "api_lambda" {
   // VPC configuration will be added here when ElastiCache is set up
   // vpc_config {
   //   subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id] // Example
-  //   security_group_ids = [aws_security_group.lambda_sg.id] // Example
+  //   security_group_ids = [aws_security_group.lambda_sg.id]
   // }
-  // depends_on = [aws_iam_role_policy_attachment.lambda_vpc_execution] // If using VPC access role
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_vpc_execution,
+    # aws_iam_role_policy_attachment.lambda_read_redis_secret_attach # Uncomment if using Redis Auth + Secrets Manager
+    aws_elasticache_cluster.redis_cluster # Ensure ElastiCache is ready before Lambda uses its details
+  ]
 }
 
 # API Gateway REST API
