@@ -23,10 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (data.initialStorySeed) {
-        // For now, just set the text. Word-by-word rendering is Task 5.
-        const p = document.createElement("p");
-        p.textContent = data.initialStorySeed;
-        storyContentElement.appendChild(p);
+        await renderStorySegmentWordByWord(data.initialStorySeed, storyContentElement);
       } else {
         console.warn("No initial story segment received from API.");
         storyContentElement.textContent =
@@ -42,10 +39,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
   fetchInitialData(RECIPE_ID); // Load initial data
 
-  // --- Task 3 & 4: Scroll Detection & Fetch More Story ---
+  // --- Task 3, 4 & 5: Scroll Detection, Fetch More Story, Word-by-Word Rendering ---
   let isFetchingMoreStory = false; // Flag to prevent multiple fetches
   const SCROLL_THRESHOLD = 200; // Pixels from bottom to trigger fetch
   const CHARS_FOR_CONTEXT = 250; // Number of characters to send as context
+  const WORD_RENDER_DELAY_MS = 100; // Delay for word-by-word rendering
+
+  async function renderStorySegmentWordByWord(segmentText, targetElement) {
+    if (!segmentText || segmentText.trim() === "") {
+      return; // Nothing to render
+    }
+
+    let paragraphElement = targetElement.querySelector("p:last-child");
+    if (!paragraphElement) {
+      paragraphElement = document.createElement("p");
+      targetElement.appendChild(paragraphElement);
+    }
+
+    // Add a leading space if the paragraph already has content and the segment doesn't start with one,
+    // and the paragraph doesn't already end with a space.
+    if (
+      paragraphElement.textContent.length > 0 &&
+      segmentText[0] !== ' ' &&
+      paragraphElement.textContent[paragraphElement.textContent.length - 1] !== ' '
+    ) {
+      segmentText = " " + segmentText;
+    }
+
+    const parts = segmentText.split(/(\s+)/); // Split by space, keeping spaces to preserve them
+
+    for (const part of parts) {
+      if (part.length > 0) {
+        paragraphElement.textContent += part;
+        window.scrollTo(0, document.body.scrollHeight); // Scroll to bottom
+        await new Promise((resolve) => setTimeout(resolve, WORD_RENDER_DELAY_MS));
+      }
+    }
+  }
 
   async function fetchMoreStory(recipeId, context) {
     console.log("Attempting to fetch more story with context snippet:", context.substring(0, 50) + "...");
@@ -57,17 +87,23 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
 
       if (data.nextStorySegment) {
-        console.log("Next story segment received:", data.nextStorySegment);
-        // Task 5 will handle rendering this segment word-by-word.
-        // For now, we just log it as per Task 4 requirements.
+        await renderStorySegmentWordByWord(data.nextStorySegment, storyContentElement);
       } else {
         console.warn("No next story segment received from API or segment was empty.");
+        // If no new segment, allow fetching again sooner.
+        isFetchingMoreStory = false; 
+        console.log("isFetchingMoreStory set to false (no new segment).");
+        return; // Exit early if no segment to render
       }
     } catch (error) {
       console.error("Error fetching more story:", error);
     } finally {
-      isFetchingMoreStory = false; // Reset flag regardless of outcome
-      console.log("isFetchingMoreStory set to false");
+      // This will now correctly run after renderStorySegmentWordByWord completes (or if an error occurs before/during it)
+      // unless we returned early due to no segment.
+      if (isFetchingMoreStory) { // Check if it wasn't already set to false
+          isFetchingMoreStory = false; 
+          console.log("isFetchingMoreStory set to false in finally block.");
+      }
     }
   }
 

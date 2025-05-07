@@ -128,18 +128,21 @@ This document outlines the tasks required to implement the frontend core functio
 
 **Actions & Files:**
 
-- **Modify `public/js/recipe.js`:**
-  - **Purpose:** Implement the animated text rendering.
+- **DONE: Modify `public/js/recipe.js`:**
+  - **Purpose:** Implement the animated text rendering for both initial and continued story segments.
   - **Content:**
-    - Create a function `renderStorySegmentWordByWord(segmentText)`.
-      - This function will take the `nextStorySegment` string as input.
-      - Split the `segmentText` into an array of words (and spaces).
-      - Use `setInterval` or a series of chained `setTimeout` calls to append each word (plus a space) to the `story-content` div one by one.
-      - A short delay (e.g., 50-150ms) between words will create the typing effect.
-      - After each word is added, ensure the view scrolls if necessary to keep the new text visible (e.g., `newWordElement.scrollIntoView({ behavior: 'smooth', block: 'end' });` or `window.scrollTo(0, document.body.scrollHeight);`).
-    - Modify the `fetchMoreStory` function:
-      - On successful fetch, instead of just logging, pass the `nextStorySegment` to `renderStorySegmentWordByWord`.
-      - Reset the `isLoadingMoreStory` flag _after_ the word-by-word rendering is complete, or manage it so new fetches can queue if desired (though simpler to wait for now).
+    - Defined a constant `WORD_RENDER_DELAY_MS` (e.g., 100ms).
+    - Created an `async` function `renderStorySegmentWordByWord(segmentText, targetElement)`:
+      - Takes the story segment string and the target HTML element.
+      - Appends text to the last `<p>` child of `targetElement`, or creates a new `<p>` if none exists.
+      - Splits `segmentText` into an array of words and spaces (preserving spaces).
+      - Uses an `async` loop with `await new Promise(resolve => setTimeout(resolve, WORD_RENDER_DELAY_MS))` to append each part (word/space) to the paragraph's `textContent`.
+      - After each part is appended, calls `window.scrollTo(0, document.body.scrollHeight)` to keep the new text in view.
+    - Modified `fetchInitialData(recipeId)`:
+      - Calls `await renderStorySegmentWordByWord(data.initialStorySeed, storyContentElement)` to render the initial story.
+    - Modified `fetchMoreStory(recipeId, context)`:
+      - On successful fetch, calls `await renderStorySegmentWordByWord(data.nextStorySegment, storyContentElement)` to render the continued story.
+      - The `isFetchingMoreStory` flag is reset to `false` in the `finally` block, which now executes *after* the `await renderStorySegmentWordByWord` completes, or if an error occurs, or if no new segment is received.
 
 **Testing:**
 
