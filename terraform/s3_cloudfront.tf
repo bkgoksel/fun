@@ -184,7 +184,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 # 9. Cloudflare DNS Record for www.yourdomain.com pointing to CloudFront
 resource "cloudflare_record" "www_site_dns" {
   zone_id = var.cloudflare_zone_id
-  name    = "www" # For www.yourdomain.com
+  name    = "www"                                                   # For www.yourdomain.com
   content = aws_cloudfront_distribution.s3_distribution.domain_name # Changed 'value' to 'content'
   type    = "CNAME"
   proxied = true # Enable Cloudflare proxy
@@ -195,7 +195,7 @@ resource "cloudflare_record" "www_site_dns" {
 # Cloudflare supports CNAME flattening for apex records.
 resource "cloudflare_record" "apex_site_dns" {
   zone_id = var.cloudflare_zone_id
-  name    = "@" # For the apex domain (e.g., yourdomain.com)
+  name    = "@"                                                     # For the apex domain (e.g., yourdomain.com)
   content = aws_cloudfront_distribution.s3_distribution.domain_name # Changed 'value' to 'content'
   type    = "CNAME"
   proxied = true # Enable Cloudflare proxy
