@@ -33,6 +33,87 @@ resource "aws_security_group" "lambda_sg" {
   }
 }
 
+# --- NAT Gateway for Lambda Internet Access ---
+
+data "aws_availability_zones" "available" {}
+
+# Elastic IP for NAT Gateway
+resource "aws_eip" "nat" {
+  domain   = "vpc"
+  tags = {
+    Name = "${var.app_name}-nat-eip"
+  }
+}
+
+# New Private Subnets for Lambda
+# IMPORTANT: Adjust the cidr_block values below to be unique and valid within your VPC.
+# These are example CIDRs.
+resource "aws_subnet" "private_a" {
+  vpc_id            = data.aws_vpc.default.id
+  # Example CIDR, please replace with a valid one for your VPC:
+  cidr_block        = "10.0.100.0/24" 
+  availability_zone = data.aws_availability_zones.available.names[0]
+
+  tags = {
+    Name    = "${var.app_name}-private-subnet-a"
+    Project = var.app_name
+  }
+}
+
+resource "aws_subnet" "private_b" {
+  vpc_id            = data.aws_vpc.default.id
+  # Example CIDR, please replace with a valid one for your VPC:
+  cidr_block        = "10.0.101.0/24" 
+  availability_zone = data.aws_availability_zones.available.names[1] # Assumes at least 2 AZs
+
+  tags = {
+    Name    = "${var.app_name}-private-subnet-b"
+    Project = var.app_name
+  }
+}
+
+# NAT Gateway
+# Placed in the first default subnet, assuming it's public and has an IGW route.
+# If not, you'll need to specify a known public subnet_id.
+resource "aws_nat_gateway" "nat" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = data.aws_subnets.default.ids[0] 
+
+  tags = {
+    Name    = "${var.app_name}-nat-gateway"
+    Project = var.app_name
+  }
+  depends_on = [aws_eip.nat] # Explicit dependency, though allocation_id implies it
+}
+
+# Route Table for Private Subnets
+resource "aws_route_table" "private" {
+  vpc_id = data.aws_vpc.default.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat.id
+  }
+
+  tags = {
+    Name    = "${var.app_name}-private-route-table"
+    Project = var.app_name
+  }
+}
+
+# Associate Private Subnets with the Private Route Table
+resource "aws_route_table_association" "private_a" {
+  subnet_id      = aws_subnet.private_a.id
+  route_table_id = aws_route_table.private.id
+}
+
+resource "aws_route_table_association" "private_b" {
+  subnet_id      = aws_subnet.private_b.id
+  route_table_id = aws_route_table.private.id
+}
+
+# --- End NAT Gateway Section ---
+
 # Security Group for ElastiCache Cluster (allows inbound from Lambda SG)
 resource "aws_security_group" "elasticache_sg" {
   name        = "${var.app_name}-elasticache-sg"

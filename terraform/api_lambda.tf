@@ -94,7 +94,8 @@ resource "aws_lambda_function" "api_lambda" {
 
   # VPC configuration to allow access to ElastiCache
   vpc_config {
-    subnet_ids         = data.aws_subnets.default.ids
+    # Lambda will now reside in the new private subnets
+    subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id]
     security_group_ids = [aws_security_group.lambda_sg.id]
   }
 
