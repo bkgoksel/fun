@@ -185,7 +185,106 @@ resource "aws_api_gateway_stage" "prod" {
     Name    = "${local.api_gateway_name}-prod-stage"
     Project = var.app_name
   }
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.api_gateway_logs.arn
+    format          = jsonencode({
+      requestId               = "$context.requestId"
+      ip                      = "$context.identity.sourceIp"
+      caller                  = "$context.identity.caller"
+      user                    = "$context.identity.user"
+      requestTime             = "$context.requestTime"
+      httpMethod              = "$context.httpMethod"
+      resourcePath            = "$context.resourcePath"
+      status                  = "$context.status"
+      protocol                = "$context.protocol"
+      responseLength          = "$context.responseLength"
+      integrationErrorMessage = "$context.integrationErrorMessage"
+      errorMessage            = "$context.error.message"
+      errorResponseType       = "$context.error.responseType"
+      integrationLatency      = "$context.integration.latency"
+      responseLatency         = "$context.responseLatency"
+      wafResponseCode         = "$context.wafResponseCode" # If using WAF
+      wafError                = "$context.wafError"       # If using WAF
+      extendedRequestId       = "$context.extendedRequestId"
+      path                    = "$context.path"
+    })
+  }
+
+  depends_on = [aws_api_gateway_account.api_gateway_cloudwatch_role]
 }
+
+# --- CloudWatch Logging for API Gateway ---
+
+# IAM Role for API Gateway to write to CloudWatch Logs
+resource "aws_iam_role" "api_gateway_cloudwatch_logs_role" {
+  name = "${local.api_gateway_name}-cloudwatch-logs-role"
+
+  assume_role_policy = jsonencode({
+    Version   = "2012-10-17",
+    Statement = [{
+      Action    = "sts:AssumeRole",
+      Effect    = "Allow",
+      Principal = {
+        Service = "apigateway.amazonaws.com"
+      }
+    }]
+  })
+
+  tags = {
+    Name    = "${local.api_gateway_name}-cloudwatch-logs-role"
+    Project = var.app_name
+  }
+}
+
+# IAM Policy for API Gateway to write to CloudWatch Logs
+resource "aws_iam_policy" "api_gateway_cloudwatch_logs_policy" {
+  name        = "${local.api_gateway_name}-cloudwatch-logs-policy"
+  description = "Allows API Gateway to write logs to CloudWatch"
+
+  policy = jsonencode({
+    Version   = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams",
+          "logs:PutLogEvents",
+          "logs:GetLogEvents",
+          "logs:FilterLogEvents"
+        ],
+        Effect   = "Allow",
+        Resource = "*" # Consider restricting this to the specific log group ARN if preferred
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "api_gateway_cloudwatch_logs_attach" {
+  role       = aws_iam_role.api_gateway_cloudwatch_logs_role.name
+  policy_arn = aws_iam_policy.api_gateway_cloudwatch_logs_policy.arn
+}
+
+# CloudWatch Log Group for API Gateway
+resource "aws_cloudwatch_log_group" "api_gateway_logs" {
+  name              = "/aws/api-gateway/${local.api_gateway_name}"
+  retention_in_days = 30 # Adjust as needed
+
+  tags = {
+    Name    = "${local.api_gateway_name}-logs"
+    Project = var.app_name
+  }
+}
+
+# Associate the IAM role with API Gateway for CloudWatch logging
+resource "aws_api_gateway_account" "api_gateway_cloudwatch_role" {
+  cloudwatch_role_arn = aws_iam_role.api_gateway_cloudwatch_logs_role.arn
+
+  depends_on = [aws_iam_role.api_gateway_cloudwatch_logs_role]
+}
+
 
 # Lambda Permission for API Gateway invocation
 resource "aws_lambda_permission" "apigw_lambda" {
