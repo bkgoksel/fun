@@ -31,7 +31,7 @@ async function generateStoryContinuation(promptText) {
         {
           role: "system",
           content:
-            "You are a master storyteller. Your task is to seamlessly continue the story provided by the user. Do not add any introductory phrases, conversational filler, or remarks like 'Here's the continuation:'. Directly output the next part of the story, picking up exactly where the user's text left off. Aim for a continuation of about 3 to 4 sentences or a short paragraph. Ensure the continuation flows naturally from the provided context.",
+            "You are a master storyteller. Your task is to seamlessly continue the story provided by the user. Do not add any introductory phrases, conversational filler, or remarks like 'Here's the continuation:'. Directly output the next part of the story, picking up exactly where the user's text left off. Ensure the continuation flows naturally from the provided context. Try to write at least 5 or 6 paragraph Try to write at least 5 or 6 paragraphs. Make sure the story is extremely verbose and tacky like a backstory from a recipe blog.",
         },
         { role: "user", content: promptText },
       ],
