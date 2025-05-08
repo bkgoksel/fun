@@ -83,7 +83,7 @@ resource "aws_elasticache_cluster" "redis_cluster" {
   parameter_group_name = "default.redis7" # Adjust based on desired Redis version/family
   port                 = 6379
 
-  subnet_group_name = aws_elasticache_subnet_group.redis_subnet_group.name
+  subnet_group_name  = aws_elasticache_subnet_group.redis_subnet_group.name
   security_group_ids = [aws_security_group.elasticache_sg.id]
 
   # Consider setting apply_immediately = true during development for faster updates

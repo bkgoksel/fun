@@ -1,7 +1,7 @@
 locals {
-  api_lambda_name = "${var.app_name}-api-lambda"
+  api_lambda_name  = "${var.app_name}-api-lambda"
   api_gateway_name = "${var.app_name}-api-gateway"
-  lambda_zip_path = "lambda_package.zip" # Ensure this file is in the terraform directory
+  lambda_zip_path  = "lambda_package.zip" # Ensure this file is in the terraform directory
 }
 
 # IAM Role for Lambda
@@ -9,10 +9,10 @@ resource "aws_iam_role" "lambda_execution_role" {
   name = "${local.api_lambda_name}-role"
 
   assume_role_policy = jsonencode({
-    Version   = "2012-10-17",
+    Version = "2012-10-17",
     Statement = [{
-      Action    = "sts:AssumeRole",
-      Effect    = "Allow",
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
       Principal = {
         Service = "lambda.amazonaws.com"
       }
@@ -71,7 +71,7 @@ resource "aws_lambda_function" "api_lambda" {
   handler       = "server.handler" // Assuming your entry point is server.js exporting a handler
   runtime       = "nodejs18.x"     // Or your preferred Node.js runtime
 
-  filename         = local.lambda_zip_path
+  filename = local.lambda_zip_path
   # The source_code_hash uses try() to allow `terraform plan` to succeed even if
   # lambda_package.zip doesn't exist yet.
   # However, lambda_package.zip MUST exist in the terraform/ directory when running `terraform apply`
@@ -188,7 +188,7 @@ resource "aws_api_gateway_stage" "prod" {
 
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gateway_logs.arn
-    format          = jsonencode({
+    format = jsonencode({
       requestId               = "$context.requestId"
       ip                      = "$context.identity.sourceIp"
       caller                  = "$context.identity.caller"
@@ -205,7 +205,7 @@ resource "aws_api_gateway_stage" "prod" {
       integrationLatency      = "$context.integration.latency"
       responseLatency         = "$context.responseLatency"
       wafResponseCode         = "$context.wafResponseCode" # If using WAF
-      wafError                = "$context.wafError"       # If using WAF
+      wafError                = "$context.wafError"        # If using WAF
       extendedRequestId       = "$context.extendedRequestId"
       path                    = "$context.path"
     })
@@ -221,10 +221,10 @@ resource "aws_iam_role" "api_gateway_cloudwatch_logs_role" {
   name = "${local.api_gateway_name}-cloudwatch-logs-role"
 
   assume_role_policy = jsonencode({
-    Version   = "2012-10-17",
+    Version = "2012-10-17",
     Statement = [{
-      Action    = "sts:AssumeRole",
-      Effect    = "Allow",
+      Action = "sts:AssumeRole",
+      Effect = "Allow",
       Principal = {
         Service = "apigateway.amazonaws.com"
       }
@@ -243,7 +243,7 @@ resource "aws_iam_policy" "api_gateway_cloudwatch_logs_policy" {
   description = "Allows API Gateway to write logs to CloudWatch"
 
   policy = jsonencode({
-    Version   = "2012-10-17",
+    Version = "2012-10-17",
     Statement = [
       {
         Action = [
