@@ -50,8 +50,9 @@ resource "aws_eip" "nat" {
 # These are example CIDRs.
 resource "aws_subnet" "private_a" {
   vpc_id            = data.aws_vpc.default.id
-  # Example CIDR, please replace with a valid one for your VPC:
-  cidr_block        = "10.0.100.0/24" 
+  # Example CIDR, PLEASE REPLACE with a valid one for your VPC:
+  # e.g., if your VPC is 172.31.0.0/16, you might use 172.31.80.0/24
+  cidr_block        = "172.31.80.0/24" 
   availability_zone = data.aws_availability_zones.available.names[0]
 
   tags = {
@@ -62,8 +63,9 @@ resource "aws_subnet" "private_a" {
 
 resource "aws_subnet" "private_b" {
   vpc_id            = data.aws_vpc.default.id
-  # Example CIDR, please replace with a valid one for your VPC:
-  cidr_block        = "10.0.101.0/24" 
+  # Example CIDR, PLEASE REPLACE with a valid one for your VPC:
+  # e.g., if your VPC is 172.31.0.0/16, you might use 172.31.81.0/24
+  cidr_block        = "172.31.81.0/24" 
   availability_zone = data.aws_availability_zones.available.names[1] # Assumes at least 2 AZs
 
   tags = {
