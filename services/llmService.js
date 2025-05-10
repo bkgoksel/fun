@@ -67,6 +67,62 @@ async function generateStoryContinuation(promptText) {
   }
 }
 
+async function expandStory(story, minAdditionalParagraphs = 10) {
+  if (!apiKey) {
+    const errorMessage =
+      "Mistral API key is not configured. Please set the MISTRAL_API_KEY environment variable.";
+    console.error(errorMessage);
+    throw new Error(errorMessage);
+  }
+
+  const client = new Mistral({ apiKey: apiKey });
+
+  try {
+    const chatResponse = await client.chat.complete({
+      model: "mistral-small-latest",
+      messages: [
+        {
+          role: "system",
+          content:
+            `You are a master storyteller. Your task is to expand the given story by adding ${minAdditionalParagraphs} or more paragraphs. 
+            Do not add any introductory phrases or remarks. Directly output the next part of the story, picking up exactly where the text left off.
+            Make the story extremely verbose and tacky like a backstory from a recipe blog, with unnecessary details and tangents that seem to go nowhere.
+            You may introduce new characters, settings, or plot points, but they should relate to the existing story in some way.`,
+        },
+        { role: "user", content: story },
+      ],
+    });
+
+    if (
+      chatResponse &&
+      chatResponse.choices &&
+      chatResponse.choices.length > 0 &&
+      chatResponse.choices[0].message &&
+      chatResponse.choices[0].message.content
+    ) {
+      return chatResponse.choices[0].message.content;
+    } else {
+      console.error(
+        "Invalid or unexpected response structure from Mistral API:",
+        JSON.stringify(chatResponse, null, 2),
+      );
+      throw new Error(
+        "Failed to get a valid expansion from LLM due to unexpected API response structure.",
+      );
+    }
+  } catch (error) {
+    console.error("Error calling Mistral API for story expansion:", error.message);
+    if (error.response && error.response.data) {
+      console.error(
+        "Mistral API Error Details:",
+        JSON.stringify(error.response.data, null, 2),
+      );
+    }
+    throw new Error(`Mistral API call failed during story expansion: ${error.message}`);
+  }
+}
+
 module.exports = {
   generateStoryContinuation,
+  expandStory,
 };

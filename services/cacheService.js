@@ -68,6 +68,38 @@ async function set(key, value, expirationInSeconds) {
     }
 }
 
+async function getRecipeData(recipeId) {
+    const key = `recipe:${recipeId}`;
+    return get(key);
+}
+
+async function setRecipeData(recipeId, data, expirationInSeconds = 3600 * 24) {
+    const key = `recipe:${recipeId}`;
+    return set(key, data, expirationInSeconds);
+}
+
+async function getRecipeStory(recipeId) {
+    const key = `recipe:${recipeId}:story`;
+    return get(key);
+}
+
+async function setRecipeStory(recipeId, story, expirationInSeconds = 3600 * 24) {
+    const key = `recipe:${recipeId}:story`;
+    return set(key, { story }, expirationInSeconds);
+}
+
+async function appendToRecipeStory(recipeId, storyAddition, expirationInSeconds = 3600 * 24) {
+    const existingStoryData = await getRecipeStory(recipeId);
+    let currentStory = '';
+    
+    if (existingStoryData && existingStoryData.story) {
+        currentStory = existingStoryData.story;
+    }
+    
+    const updatedStory = currentStory + storyAddition;
+    return setRecipeStory(recipeId, updatedStory, expirationInSeconds);
+}
+
 // Attempt to connect when the module is loaded, but don't block.
 // Actual operations will await the connection.
 connect().catch(err => {
@@ -79,6 +111,11 @@ connect().catch(err => {
 module.exports = {
     get,
     set,
+    getRecipeData,
+    setRecipeData,
+    getRecipeStory,
+    setRecipeStory,
+    appendToRecipeStory,
     // Expose connect if explicit connection management from server.js is desired
     // connectRedis: connect 
 };
