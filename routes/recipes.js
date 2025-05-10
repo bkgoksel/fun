@@ -49,6 +49,8 @@ router.get('/recipe/:recipeId', async (req, res, next) => {
             id: recipe.id,
             title: recipe.title,
             story: story,
+            ingredients: recipe.ingredients || [],
+            instructions: recipe.instructions || [],
             source: source
         });
     } catch (error) {
