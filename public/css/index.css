@@ -1,24 +1,131 @@
-/* Styles specific to index.html */
+/* Styles specific to index.html - Live Laugh Love Cottagecore Edition */
+header h1 {
+    font-family: 'Great Vibes', cursive;
+    font-size: 3.4em;
+    color: #8d6e63;
+    text-shadow: 2px 2px 3px rgba(0,0,0,0.1);
+    margin: 15px 0;
+    position: relative;
+    display: inline-block;
+}
+
+header h1::before,
+header h1::after {
+    content: "❀";
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.5em;
+    color: #d7b49e;
+}
+
+header h1::before {
+    left: -40px;
+}
+
+header h1::after {
+    right: -40px;
+}
+
 #recipe-list {
     list-style-type: none;
     padding: 0;
+    margin: 30px 0;
+    position: relative;
+}
+
+#recipe-list::before {
+    content: "";
+    position: absolute;
+    top: -15px;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="28" height="49" viewBox="0 0 28 49"><g fill="%23f3e5ab"><circle cx="14" cy="14" r="14"/><circle cx="14" cy="42" r="7"/></g></svg>');
+    background-repeat: repeat-x;
+    background-size: 20px 10px;
+    opacity: 0.5;
 }
 
 #recipe-list li {
-    margin-bottom: 10px;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border: 1px solid #eee;
-    border-radius: 4px;
+    margin-bottom: 15px;
+    padding: 15px;
+    background-color: #fffcf5;
+    border: 2px solid #f3e5ab;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+#recipe-list li::before {
+    content: "✽";
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #d7b49e;
+    font-size: 1.2em;
+    opacity: 0.7;
+}
+
+#recipe-list li::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #f3e5ab, transparent);
+}
+
+#recipe-list li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border-color: #d7b49e;
 }
 
 #recipe-list li a {
     text-decoration: none;
-    color: #337ab7;
+    color: #8d6e63;
     font-weight: bold;
+    font-size: 1.2em;
+    display: block;
+    padding-left: 30px;
+    font-family: 'Dancing Script', cursive;
+    position: relative;
 }
 
 #recipe-list li a:hover {
-    text-decoration: underline;
-    color: #23527c;
+    color: #a67c52;
+}
+
+/* Add quote section to the index page */
+.site-description {
+    text-align: center;
+    margin: 20px 0 40px;
+    padding: 20px;
+    position: relative;
+    font-style: italic;
+    color: #8d6e63;
+}
+
+.site-description::before,
+.site-description::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #f3e5ab, transparent);
+}
+
+.site-description::before {
+    top: 0;
+}
+
+.site-description::after {
+    bottom: 0;
 }

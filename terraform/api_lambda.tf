@@ -37,6 +37,37 @@ resource "aws_iam_role_policy_attachment" "lambda_vpc_execution" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
 
+# Policy for S3 access to manage recipe images
+resource "aws_iam_policy" "lambda_s3_access" {
+  name        = "${local.api_lambda_name}-s3-access-policy"
+  description = "Allow Lambda to read and write to recipe images S3 bucket"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:ListBucket",
+          "s3:GetObjectAttributes"
+        ],
+        Effect   = "Allow",
+        Resource = [
+          aws_s3_bucket.recipe_images_bucket.arn,
+          "${aws_s3_bucket.recipe_images_bucket.arn}/*"
+        ]
+      }
+    ]
+  })
+}
+
+# Attach S3 access policy to Lambda role
+resource "aws_iam_role_policy_attachment" "lambda_s3_access_attach" {
+  role       = aws_iam_role.lambda_execution_role.name
+  policy_arn = aws_iam_policy.lambda_s3_access.arn
+}
+
 # Optional: Attach policy to allow reading Redis AUTH token from Secrets Manager
 # resource "aws_iam_policy" "lambda_read_redis_secret" {
 #   name        = "${local.api_lambda_name}-read-redis-secret-policy"
@@ -84,10 +115,13 @@ resource "aws_lambda_function" "api_lambda" {
 
   environment {
     variables = {
-      NODE_ENV        = "production"
-      MISTRAL_API_KEY = var.mistral_api_key
-      REDIS_HOST      = aws_elasticache_cluster.redis_cluster.cache_nodes[0].address
-      REDIS_PORT      = aws_elasticache_cluster.redis_cluster.cache_nodes[0].port
+      NODE_ENV              = "production"
+      MISTRAL_API_KEY       = var.mistral_api_key
+      OPENAI_API_KEY        = var.openai_api_key
+      REDIS_HOST            = aws_elasticache_cluster.redis_cluster.cache_nodes[0].address
+      REDIS_PORT            = aws_elasticache_cluster.redis_cluster.cache_nodes[0].port
+      IMAGES_BUCKET         = aws_s3_bucket.recipe_images_bucket.id
+      IMAGE_BUCKET_REGION   = var.aws_region
       # REDIS_AUTH_TOKEN_SECRET_ARN = var.redis_auth_token_secret_arn # Uncomment if using Redis Auth + Secrets Manager
     }
   }
@@ -111,8 +145,10 @@ resource "aws_lambda_function" "api_lambda" {
   // }
   depends_on = [
     aws_iam_role_policy_attachment.lambda_vpc_execution,
+    aws_iam_role_policy_attachment.lambda_s3_access_attach,
     # aws_iam_role_policy_attachment.lambda_read_redis_secret_attach # Uncomment if using Redis Auth + Secrets Manager
-    aws_elasticache_cluster.redis_cluster # Ensure ElastiCache is ready before Lambda uses its details
+    aws_elasticache_cluster.redis_cluster, # Ensure ElastiCache is ready before Lambda uses its details
+    aws_s3_bucket.recipe_images_bucket # Ensure the S3 bucket is created first
   ]
 }
 

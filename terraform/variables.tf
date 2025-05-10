@@ -35,6 +35,13 @@ variable "mistral_api_key" {
   # Best practice: Set via TF_VAR_mistral_api_key environment variable or store in Secrets Manager
 }
 
+variable "openai_api_key" {
+  description = "OpenAI API Key for image generation."
+  type        = string
+  sensitive   = true
+  # Best practice: Set via TF_VAR_openai_api_key environment variable or store in Secrets Manager
+}
+
 variable "elasticache_node_type" {
   description = "Node type for the ElastiCache Redis cluster (e.g., cache.t3.micro)."
   type        = string

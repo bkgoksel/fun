@@ -22,12 +22,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const WORD_RENDER_DELAY_MS = 10; // Delay for word-by-word rendering
   const AUTOSCROLL_BOTTOM_THRESHOLD = 250; // Min pixels from bottom for auto-scroll to be active during rendering
   const PERCENT_RENDERED_BEFORE_EXPAND = 80; // When to request more story from backend (80%)
+  const PARAGRAPHS_PER_IMAGE = 3; // Insert an image after every 3 paragraphs
 
   // State variables
   let fullStoryText = ""; // The complete story as received from the backend
   let renderedParagraphs = 0; // How many paragraphs have been rendered
   let isRenderingStory = false; // Flag to prevent multiple render processes
   let isRequestingExpansion = false; // Flag to prevent multiple expansion requests
+  let recipeTitle = ""; // Store the recipe title for image generation
+  let recipeImageUrls = {}; // Map of paragraph index to image URL
 
   async function fetchRecipeData(recipeId) {
     try {
@@ -41,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (data.title) {
         recipeTitleElement.textContent = data.title;
+        recipeTitle = data.title;
       } else {
         console.warn("No title received from API.");
         recipeTitleElement.textContent = "Recipe Title Not Found";
@@ -50,8 +54,20 @@ document.addEventListener("DOMContentLoaded", () => {
         // Store the full story but don't render it all at once
         fullStoryText = data.story;
 
+        // Store image URLs if available
+        if (data.imageUrls && typeof data.imageUrls === 'object') {
+          recipeImageUrls = data.imageUrls;
+          console.log("Loaded image URLs:", recipeImageUrls);
+        }
+
         // Start rendering the story paragraph by paragraph
         renderNextParagraph();
+
+        // If we have more than PARAGRAPHS_PER_IMAGE paragraphs, request generation of all images
+        const paragraphs = parseStoryIntoParagraphs(fullStoryText);
+        if (paragraphs.length > PARAGRAPHS_PER_IMAGE) {
+          requestGenerateAllImages();
+        }
       } else {
         console.warn("No story received from API.");
         storyContentElement.textContent =
@@ -81,33 +97,42 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function parseStoryIntoParagraphs(story) {
     // Split the story into paragraphs by newlines or multiple spaces
-    return story.split(/\n+/).flatMap(p => 
+    return story.split(/\n+/).flatMap(p =>
       p.trim() ? p.split(/(?<=\.)\s{2,}/).filter(s => s.trim().length > 0) : []
     );
   }
 
   async function requestStoryExpansion() {
     if (isRequestingExpansion) return;
-    
+
     isRequestingExpansion = true;
     console.log("Requesting story expansion from the backend...");
-    
+
     try {
       const response = await fetch(
         `${API_BASE_URL}/api/recipe/${RECIPE_ID}/expand`,
         { method: 'POST' }
       );
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       if (data.story) {
         // Update our full story with the expanded version
         fullStoryText = data.story;
         console.log("Story expanded successfully. New length:", fullStoryText.length);
+
+        // Update image URLs if available
+        if (data.imageUrls && typeof data.imageUrls === 'object') {
+          recipeImageUrls = {...recipeImageUrls, ...data.imageUrls};
+          console.log("Updated image URLs:", recipeImageUrls);
+        }
+
+        // Request generation of images for the new paragraphs
+        requestGenerateAllImages();
       } else {
         console.warn("No expanded story received from API.");
       }
@@ -115,6 +140,62 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Error expanding story:", error);
     } finally {
       isRequestingExpansion = false;
+    }
+  }
+
+  async function requestGenerateAllImages() {
+    console.log("Requesting generation of all images...");
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/recipe/${RECIPE_ID}/generate-images`,
+        { method: 'POST' }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.allImageUrls && typeof data.allImageUrls === 'object') {
+        // Update our image URLs with the latest from the server
+        recipeImageUrls = data.allImageUrls;
+        console.log("Generated/updated image URLs:", recipeImageUrls);
+      }
+    } catch (error) {
+      console.error("Error generating images:", error);
+    }
+  }
+
+  async function fetchImageForParagraph(paragraphIndex) {
+    // First check if we already have this image URL
+    if (recipeImageUrls[paragraphIndex]) {
+      return recipeImageUrls[paragraphIndex];
+    }
+
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/api/recipe/${RECIPE_ID}/image/${paragraphIndex}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.imageUrl) {
+        // Store the image URL for future use
+        recipeImageUrls[paragraphIndex] = data.imageUrl;
+        return data.imageUrl;
+      } else {
+        console.warn(`No image URL received for paragraph ${paragraphIndex}.`);
+        return null;
+      }
+    } catch (error) {
+      console.error(`Error fetching image for paragraph ${paragraphIndex}:`, error);
+      return null;
     }
   }
 
@@ -160,11 +241,33 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function renderImage(imageUrl, paragraphIndex) {
+    const imgContainer = document.createElement("div");
+    imgContainer.className = "story-image-container";
+
+    const img = document.createElement("img");
+    img.src = imageUrl;
+    img.className = "story-image";
+    img.alt = `Illustration for ${recipeTitle}, paragraph ${paragraphIndex}`;
+    img.dataset.paragraphIndex = paragraphIndex;
+
+    imgContainer.appendChild(img);
+    storyContentElement.appendChild(imgContainer);
+
+    // Add a caption
+    const caption = document.createElement("div");
+    caption.className = "story-image-caption";
+    caption.textContent = `A visual journey through ${recipeTitle}`;
+    imgContainer.appendChild(caption);
+
+    return imgContainer;
+  }
+
   async function renderNextParagraph() {
     if (isRenderingStory) return;
-    
+
     const paragraphs = parseStoryIntoParagraphs(fullStoryText);
-    
+
     if (renderedParagraphs >= paragraphs.length) {
       // All paragraphs rendered, check if we need to request more
       const percentRendered = 100;
@@ -173,18 +276,36 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       return;
     }
-    
+
     isRenderingStory = true;
-    
+
     try {
       const paragraphText = paragraphs[renderedParagraphs];
       const p = document.createElement("p");
       storyContentElement.appendChild(p);
-      
+
       await renderStoryWordByWord(paragraphText, p);
-      
+
+      // Check if we need to insert an image after this paragraph
+      // We want to insert after paragraph indices 2, 5, 8, etc. (0-indexed)
+      if (renderedParagraphs > 0 && renderedParagraphs % PARAGRAPHS_PER_IMAGE === (PARAGRAPHS_PER_IMAGE - 1)) {
+        // Check if we already have an image URL for this paragraph
+        let imageUrl = recipeImageUrls[renderedParagraphs];
+
+        if (imageUrl) {
+          renderImage(imageUrl, renderedParagraphs);
+        } else {
+          // If no image URL yet, we'll fetch it or generate it
+          imageUrl = await fetchImageForParagraph(renderedParagraphs);
+
+          if (imageUrl) {
+            renderImage(imageUrl, renderedParagraphs);
+          }
+        }
+      }
+
       renderedParagraphs++;
-      
+
       // Check if we need to request more content from the backend
       const percentRendered = Math.floor((renderedParagraphs / paragraphs.length) * 100);
       if (percentRendered >= PERCENT_RENDERED_BEFORE_EXPAND && !isRequestingExpansion) {

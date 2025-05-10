@@ -3,8 +3,8 @@ const redis = require('redis');
 // Construct Redis URL from environment variables if available, otherwise default to localhost
 const redisHost = process.env.REDIS_HOST;
 const redisPort = process.env.REDIS_PORT;
-const redisUrl = (redisHost && redisPort) 
-    ? `redis://${redisHost}:${redisPort}` 
+const redisUrl = (redisHost && redisPort)
+    ? `redis://${redisHost}:${redisPort}`
     : 'redis://localhost:6379';
 
 console.log(`Using Redis URL: ${redisUrl}`); // Log the URL being used
@@ -23,7 +23,7 @@ async function connect() {
         client.on('error', (err) => {
             console.error('Redis Client Error:', err);
             // If connection fails, reset promise to allow retries or indicate failure
-            connectionPromise = null; 
+            connectionPromise = null;
             // Potentially throw or handle critical connection failure
         });
 
@@ -91,13 +91,59 @@ async function setRecipeStory(recipeId, story, expirationInSeconds = 3600 * 24) 
 async function appendToRecipeStory(recipeId, storyAddition, expirationInSeconds = 3600 * 24) {
     const existingStoryData = await getRecipeStory(recipeId);
     let currentStory = '';
-    
+
     if (existingStoryData && existingStoryData.story) {
         currentStory = existingStoryData.story;
     }
-    
+
     const updatedStory = currentStory + storyAddition;
     return setRecipeStory(recipeId, updatedStory, expirationInSeconds);
+}
+
+// Image-related cache functions
+async function getRecipeImageUrl(recipeId, paragraphIndex) {
+    const key = `recipe:${recipeId}:image:${paragraphIndex}`;
+    return get(key);
+}
+
+async function setRecipeImageUrl(recipeId, paragraphIndex, imageUrl, expirationInSeconds = 3600 * 24 * 7) {
+    const key = `recipe:${recipeId}:image:${paragraphIndex}`;
+    return set(key, { imageUrl }, expirationInSeconds);
+}
+
+async function getAllRecipeImageUrls(recipeId) {
+    try {
+        const currentClient = await connect();
+        if (!currentClient) throw new Error("Redis client not available.");
+
+        // Use pattern matching to find all image URLs for this recipe
+        const pattern = `recipe:${recipeId}:image:*`;
+        const keys = await currentClient.keys(pattern);
+
+        if (!keys || keys.length === 0) {
+            return {};
+        }
+
+        // Get all values for these keys
+        const values = await Promise.all(keys.map(key => get(key)));
+
+        // Create a map of paragraphIndex -> imageUrl
+        const imageUrlMap = {};
+        keys.forEach((key, index) => {
+            // Extract the paragraph index from the key (format: recipe:recipeId:image:paragraphIndex)
+            const parts = key.split(':');
+            const paragraphIndex = parseInt(parts[3]);
+
+            if (!isNaN(paragraphIndex) && values[index] && values[index].imageUrl) {
+                imageUrlMap[paragraphIndex] = values[index].imageUrl;
+            }
+        });
+
+        return imageUrlMap;
+    } catch (error) {
+        console.error(`Error getting all recipe image URLs for recipe ${recipeId}:`, error);
+        return {};
+    }
 }
 
 // Attempt to connect when the module is loaded, but don't block.
@@ -116,6 +162,9 @@ module.exports = {
     getRecipeStory,
     setRecipeStory,
     appendToRecipeStory,
+    getRecipeImageUrl,
+    setRecipeImageUrl,
+    getAllRecipeImageUrls,
     // Expose connect if explicit connection management from server.js is desired
-    // connectRedis: connect 
+    // connectRedis: connect
 };

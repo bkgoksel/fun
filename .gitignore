@@ -6,3 +6,5 @@ terraform/.terraform.lock.hcl
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
 terraform/lambda_package.zip
+
+**/.claude/settings.local.json
