@@ -3,6 +3,8 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("recipe-title")
     .querySelector("h1");
   const storyContentElement = document.getElementById("story-content");
+  const ingredientsListElement = document.getElementById("ingredients-list");
+  const instructionsListElement = document.getElementById("instructions-list");
   const API_BASE_URL =
     "https://xre1rlalkd.execute-api.us-west-2.amazonaws.com/prod";
 
@@ -47,13 +49,27 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.story) {
         // Store the full story but don't render it all at once
         fullStoryText = data.story;
-        
+
         // Start rendering the story paragraph by paragraph
         renderNextParagraph();
       } else {
         console.warn("No story received from API.");
         storyContentElement.textContent =
           "Once upon a time, the story was supposed to start here, but something went wrong...";
+      }
+
+      // Render ingredients if available
+      if (data.ingredients && Array.isArray(data.ingredients)) {
+        renderIngredients(data.ingredients);
+      } else {
+        console.warn("No ingredients received from API or invalid format.");
+      }
+
+      // Render instructions if available
+      if (data.instructions && Array.isArray(data.instructions)) {
+        renderInstructions(data.instructions);
+      } else {
+        console.warn("No instructions received from API or invalid format.");
       }
     } catch (error) {
       console.error("Error fetching recipe data:", error);
@@ -177,6 +193,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Load initial data
   fetchRecipeData(RECIPE_ID);
+
+  // Functions to render ingredients and instructions
+  function renderIngredients(ingredients) {
+    // Clear any existing content
+    ingredientsListElement.innerHTML = '';
+
+    // Add each ingredient as a list item
+    ingredients.forEach(ingredient => {
+      const li = document.createElement('li');
+      li.textContent = ingredient;
+      ingredientsListElement.appendChild(li);
+    });
+  }
+
+  function renderInstructions(instructions) {
+    // Clear any existing content
+    instructionsListElement.innerHTML = '';
+
+    // Add each instruction as a list item
+    instructions.forEach(instruction => {
+      const li = document.createElement('li');
+      li.textContent = instruction;
+      instructionsListElement.appendChild(li);
+    });
+  }
 
   // Add scroll event listener to render more story as user scrolls
   window.addEventListener("scroll", () => {
