@@ -49,6 +49,9 @@ router.get('/recipe/:recipeId', async (req, res, next) => {
         // Get all existing image URLs for this recipe
         const recipeImageUrls = await cache.getAllRecipeImageUrls(recipeId);
 
+        // If we need to refresh the cached image URLs, we could do it here
+        // But for simplicity, we'll return the cached URLs and let the client handle any broken URLs
+
         res.json({
             id: recipe.id,
             title: recipe.title,
@@ -115,12 +118,6 @@ router.get('/recipe/:recipeId/image/:paragraphIndex', async (req, res, next) => 
     }
 
     try {
-        // Check if we already have an image URL for this paragraph
-        const cachedImage = await cache.getRecipeImageUrl(recipeId, parsedIndex);
-        if (cachedImage && cachedImage.imageUrl) {
-            return res.json({ imageUrl: cachedImage.imageUrl });
-        }
-
         // Get recipe data and story
         const recipe = await cache.getRecipeData(recipeId);
         if (!recipe) {
@@ -156,9 +153,10 @@ router.get('/recipe/:recipeId/image/:paragraphIndex', async (req, res, next) => 
     }
 });
 
-// GET /api/recipe/:recipeId/generate-images
+// POST /api/recipe/:recipeId/generate-images
 router.post('/recipe/:recipeId/generate-images', async (req, res, next) => {
     const { recipeId } = req.params;
+    const forceRegenerate = true; // Set to true to force regeneration of all image URLs
 
     try {
         // Get recipe data and story
@@ -181,23 +179,15 @@ router.post('/recipe/:recipeId/generate-images', async (req, res, next) => {
         const imageGenPromises = [];
         for (let i = 2; i < paragraphs.length; i += 3) {
             const paragraph = paragraphs[i];
+            const prompt = createImagePrompt(paragraph, recipe.title);
 
-            // Check if image already exists for this paragraph
-            const existingImage = await cache.getRecipeImageUrl(recipeId, i);
-            if (!existingImage || !existingImage.imageUrl) {
-                const prompt = createImagePrompt(paragraph, recipe.title);
-                const imagePromise = generateImage(prompt).then(imageUrl => {
-                    cache.setRecipeImageUrl(recipeId, i, imageUrl);
-                    return { paragraphIndex: i, imageUrl };
-                });
-                imageGenPromises.push(imagePromise);
-            } else {
-                imageGenPromises.push(Promise.resolve({
-                    paragraphIndex: i,
-                    imageUrl: existingImage.imageUrl,
-                    cached: true
-                }));
-            }
+            // Always generate a new URL using our updated direct URL method
+            const imagePromise = generateImage(prompt).then(imageUrl => {
+                cache.setRecipeImageUrl(recipeId, i, imageUrl);
+                return { paragraphIndex: i, imageUrl, regenerated: true };
+            });
+
+            imageGenPromises.push(imagePromise);
         }
 
         // Wait for all image generation to complete
@@ -213,6 +203,28 @@ router.post('/recipe/:recipeId/generate-images', async (req, res, next) => {
         });
     } catch (error) {
         console.error(`Error generating images for recipe ${recipeId}:`, error);
+        next(error);
+    }
+});
+
+// POST /api/flush-cache - Admin endpoint to flush Redis cache
+router.post('/flush-cache', async (req, res, next) => {
+    try {
+        console.log("Attempting to flush Redis cache...");
+        // Get Redis client
+        const redisClient = await cache.connect();
+
+        if (!redisClient) {
+            throw new Error("Redis client not available");
+        }
+
+        // Flush all keys
+        await redisClient.flushAll();
+
+        console.log("Redis cache flushed successfully");
+        res.json({ success: true, message: "Redis cache flushed successfully" });
+    } catch (error) {
+        console.error("Error flushing Redis cache:", error);
         next(error);
     }
 });

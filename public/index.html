@@ -1,45 +1,60 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Storied Recipes - Index</title>
-    <link rel="stylesheet" href="css/style.css"> <!-- Can use common styles -->
-    <link rel="stylesheet" href="css/index.css"> <!-- Specific styles for index -->
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Storied Recipes</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- Can use common styles -->
+    <link rel="stylesheet" href="css/index.css" />
+    <!-- Specific styles for index -->
     <script src="js/index.js" defer></script>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <h1>My Storied Recipes</h1>
-        </header>
+      <header>
+        <h1>My Storied Recipes</h1>
+      </header>
 
-        <div class="site-description">
-            Welcome to my little corner of the internet! I'm so blessed to share these precious family recipes
-            that have been passed down through generations. Each recipe comes with a heartfelt story that I just
-            HAD to share! Grab your mug of tea and enjoy these culinary treasures!
+      <div class="site-description">
+        Welcome to my little corner of the internet! I'm so blessed to share
+        these precious family recipes that have been passed down through
+        generations. Each recipe comes with a heartfelt story that I just HAD to
+        share! Grab your mug of tea and enjoy these culinary treasures!
+      </div>
+
+      <div class="quote-container">
+        <div class="quote">Cooking with love provides food for the soul</div>
+        <div class="quote-author">~ Me, probably</div>
+      </div>
+
+      <main>
+        <ul id="recipe-list">
+          <!-- Recipes will be listed here by JavaScript -->
+          <li>Loading my precious recipes...</li>
+        </ul>
+
+        <!-- Admin Controls (hidden by default) -->
+        <div class="admin-controls" style="margin-top: 2rem; padding: 1rem; border: 1px solid #ddd; border-radius: 4px;">
+          <h4>Admin Controls</h4>
+          <button id="flush-cache-btn" style="padding: 0.5rem 1rem; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Flush Redis Cache</button>
+          <p id="flush-result" style="margin-top: 0.5rem;"></p>
         </div>
+      </main>
 
-        <div class="quote-container">
-            <div class="quote">Cooking with love provides food for the soul</div>
-            <div class="quote-author">~ Me, probably</div>
+      <div class="quote-container">
+        <div class="quote">
+          The fondest memories are made when gathered around the table
         </div>
+        <div class="quote-author">~ Live, Laugh, Cook!</div>
+      </div>
 
-        <main>
-            <ul id="recipe-list">
-                <!-- Recipes will be listed here by JavaScript -->
-                <li>Loading my precious recipes...</li>
-            </ul>
-        </main>
-
-        <div class="quote-container">
-            <div class="quote">The fondest memories are made when gathered around the table</div>
-            <div class="quote-author">~ Live, Laugh, Cook!</div>
-        </div>
-
-        <footer>
-            <p>&copy; 2025 Blessed Storied Recipes. Made with love in my cozy cottage kitchen.</p>
-        </footer>
+      <footer>
+        <p>
+          &copy; 2025 Blessed Storied Recipes. Made with love in my cozy cottage
+          kitchen.
+        </p>
+      </footer>
     </div>
-</body>
+  </body>
 </html>

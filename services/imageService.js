@@ -3,8 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const util = require('util');
 const stream = require('stream');
-const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
-const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
 const crypto = require('crypto');
 
 // Convert streams to promises
@@ -35,15 +34,10 @@ async function generateImage(prompt) {
     const promptHash = crypto.createHash('md5').update(prompt).digest('hex');
     const imageName = `${promptHash}.png`;
     
-    // Check if image already exists in S3
-    try {
-      const imageUrl = await getImageUrl(imageName);
-      console.log(`Image already exists for prompt: ${prompt.substring(0, 30)}...`);
-      return imageUrl;
-    } catch (error) {
-      // Image doesn't exist, continue with generation
-      console.log(`Generating new image for prompt: ${prompt.substring(0, 30)}...`);
-    }
+    // Image name is based on prompt hash, so if it exists in S3 it will have the same URL
+    // Calculate the final S3 URL we'll use
+    const s3Url = getImageUrl(imageName);
+    console.log(`Using URL for image: ${prompt.substring(0, 30)}...`);
 
     // Call OpenAI API to generate image
     const response = await axios.post(
@@ -68,12 +62,12 @@ async function generateImage(prompt) {
     }
 
     // Get the image URL from the response
-    const imageUrl = response.data.data[0].url;
+    const openaiImageUrl = response.data.data[0].url;
     
     // Download the image and upload to S3
     const imageResponse = await axios({
       method: 'GET',
-      url: imageUrl,
+      url: openaiImageUrl,
       responseType: 'arraybuffer'
     });
 
@@ -87,7 +81,7 @@ async function generateImage(prompt) {
     }));
 
     // Return the S3 URL for the image
-    return await getImageUrl(imageName);
+    return getImageUrl(imageName);
   } catch (error) {
     console.error('Error generating image:', error);
     throw error;
@@ -95,17 +89,14 @@ async function generateImage(prompt) {
 }
 
 /**
- * Get a signed URL for an image in S3
+ * Get a direct public URL for an image in S3
  * @param {string} imageName - The name of the image file in S3
- * @returns {Promise<string>} - The signed URL for the image
+ * @returns {string} - The direct public URL for the image
  */
-async function getImageUrl(imageName) {
-  const command = new GetObjectCommand({
-    Bucket: IMAGES_BUCKET,
-    Key: imageName
-  });
-
-  const url = await getSignedUrl(s3Client, command, { expiresIn: 3600 * 24 }); // 24 hours
+function getImageUrl(imageName) {
+  // Construct a direct S3 URL (no signing needed since bucket is public)
+  const region = process.env.IMAGE_BUCKET_REGION || 'us-west-2';
+  const url = `https://${IMAGES_BUCKET}.s3.${region}.amazonaws.com/${imageName}`;
   return url;
 }
 

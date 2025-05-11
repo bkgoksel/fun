@@ -36,6 +36,26 @@ resource "aws_s3_bucket_cors_configuration" "images_bucket_cors" {
   }
 }
 
+# S3 Bucket Ownership Controls - Required for ACLs to work
+resource "aws_s3_bucket_ownership_controls" "images_bucket_ownership" {
+  bucket = aws_s3_bucket.recipe_images_bucket.id
+
+  rule {
+    object_ownership = "ObjectWriter"
+  }
+}
+
+# S3 Bucket ACL configuration - Explicitly set as public-read
+resource "aws_s3_bucket_acl" "images_bucket_acl" {
+  bucket = aws_s3_bucket.recipe_images_bucket.id
+  acl    = "public-read"
+
+  depends_on = [
+    aws_s3_bucket_public_access_block.images_bucket_pab,
+    aws_s3_bucket_ownership_controls.images_bucket_ownership
+  ]
+}
+
 # S3 Bucket Policy to allow public read access to objects
 resource "aws_s3_bucket_policy" "images_bucket_policy" {
   bucket = aws_s3_bucket.recipe_images_bucket.id

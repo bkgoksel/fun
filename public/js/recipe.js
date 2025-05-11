@@ -168,9 +168,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  async function fetchImageForParagraph(paragraphIndex) {
-    // First check if we already have this image URL
-    if (recipeImageUrls[paragraphIndex]) {
+  async function fetchImageForParagraph(paragraphIndex, forceRefresh = false) {
+    // First check if we already have this image URL, unless force refresh is requested
+    if (!forceRefresh && recipeImageUrls[paragraphIndex]) {
       return recipeImageUrls[paragraphIndex];
     }
 
@@ -251,6 +251,18 @@ document.addEventListener("DOMContentLoaded", () => {
     img.alt = `Illustration for ${recipeTitle}, paragraph ${paragraphIndex}`;
     img.dataset.paragraphIndex = paragraphIndex;
 
+    // Add error handling for images
+    img.onerror = function() {
+      console.warn(`Image failed to load: ${imageUrl}. Requesting new image.`);
+      // Request a new image when load fails
+      fetchImageForParagraph(paragraphIndex, true)
+        .then(newImageUrl => {
+          if (newImageUrl) {
+            img.src = newImageUrl;
+          }
+        });
+    };
+
     imgContainer.appendChild(img);
     storyContentElement.appendChild(imgContainer);
 
@@ -322,10 +334,64 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Set up admin controls
+  setupAdminControls();
+
   // Load initial data
   fetchRecipeData(RECIPE_ID);
 
   // Functions to render ingredients and instructions
+
+  // Function to setup admin controls for image regeneration
+  function setupAdminControls() {
+    const regenerateImagesBtn = document.getElementById('regenerate-images-btn');
+    if (!regenerateImagesBtn) return;
+
+    regenerateImagesBtn.addEventListener('click', async () => {
+      try {
+        const resultElement = document.getElementById('regenerate-result');
+        resultElement.textContent = "Regenerating images...";
+        resultElement.style.color = "";
+
+        // Call the generate-images endpoint
+        const response = await fetch(
+          `${API_BASE_URL}/api/recipe/${RECIPE_ID}/generate-images`,
+          { method: 'POST' }
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        // Update image URLs with the newly generated ones
+        if (data.allImageUrls) {
+          recipeImageUrls = data.allImageUrls;
+
+          // Update any displayed images with new URLs
+          const storyImages = document.querySelectorAll('.story-image');
+          storyImages.forEach(img => {
+            const paragraphIndex = img.dataset.paragraphIndex;
+            if (paragraphIndex && recipeImageUrls[paragraphIndex]) {
+              img.src = recipeImageUrls[paragraphIndex];
+            }
+          });
+
+          resultElement.textContent = `Successfully regenerated ${Object.keys(data.generatedImages || {}).length} images!`;
+          resultElement.style.color = "green";
+        } else {
+          resultElement.textContent = "No images were regenerated. Try again later.";
+          resultElement.style.color = "orange";
+        }
+      } catch (error) {
+        console.error('Error regenerating images:', error);
+        const resultElement = document.getElementById('regenerate-result');
+        resultElement.textContent = `Error: ${error.message}`;
+        resultElement.style.color = "red";
+      }
+    });
+  }
   function renderIngredients(ingredients) {
     // Clear any existing content
     ingredientsListElement.innerHTML = '';

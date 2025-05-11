@@ -165,6 +165,6 @@ module.exports = {
     getRecipeImageUrl,
     setRecipeImageUrl,
     getAllRecipeImageUrls,
-    // Expose connect if explicit connection management from server.js is desired
-    // connectRedis: connect
+    // Expose connect for admin operations
+    connect
 };

@@ -1,65 +1,91 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Storied Recipe</title>
-    <link rel="stylesheet" href="css/style.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Storied Recipes</title>
+    <link rel="stylesheet" href="css/style.css" />
     <script src="js/recipe.js" defer></script>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <div id="recipe-title">
-                <!-- Recipe title will be loaded here by JavaScript -->
-                <h1>Recipe Title</h1>
-            </div>
-            <div class="recipe-subtitle">A treasured family heirloom</div>
-        </header>
-
-        <div class="personal-intro">
-            <p>You simply MUST read this entire story before getting to the recipe! It's filled with cherished memories, important life lessons, and absolutely essential details about my childhood that will make this dish taste SO much better!</p>
+      <header>
+        <div id="recipe-title">
+          <!-- Recipe title will be loaded here by JavaScript -->
+          <h1>Recipe Title</h1>
         </div>
+        <div class="recipe-subtitle">A treasured family heirloom</div>
+      </header>
 
-        <main>
-            <div class="quote-container">
-                <div class="quote">Food is memories, love, and tradition all stirred into one perfect pot</div>
-                <div class="quote-author">~ Kitchen Wisdom</div>
-            </div>
+      <div class="personal-intro">
+        <p>
+          You simply MUST read this entire story before getting to the recipe!
+          It's filled with cherished memories, important life lessons, and
+          absolutely essential details about my childhood that will make this
+          dish taste SO much better!
+        </p>
+      </div>
 
-            <div id="story-content">
-                <!-- Story will be dynamically inserted here by JavaScript -->
-            </div>
-
-            <div class="personal-note">
-                <p>I hope you enjoy this recipe as much as my family has for generations! Don't forget to PIN this recipe, SHARE it with your friends, and SUBSCRIBE to my newsletter for more heartwarming stories and delicious recipes! XOXO</p>
-            </div>
-
-            <section id="recipe-details">
-                <div class="recipe-section">
-                    <h2>Ingredients</h2>
-                    <ul id="ingredients-list">
-                        <!-- Ingredients will be loaded here by JavaScript -->
-                    </ul>
-                </div>
-                <div class="recipe-section">
-                    <h2>Directions</h2>
-                    <ol id="instructions-list">
-                        <!-- Instructions will be loaded here by JavaScript -->
-                    </ol>
-                </div>
-            </section>
-        </main>
-
+      <main>
         <div class="quote-container">
-            <div class="quote">Bless this food before us, the family beside us, and the love between us</div>
-            <div class="quote-author">~ Cottage Kitchen Blessings</div>
+          <div class="quote">
+            Food is memories, love, and tradition all stirred into one perfect
+            pot
+          </div>
+          <div class="quote-author">~ Kitchen Wisdom</div>
         </div>
 
-        <footer>
-            <p>&copy; 2025 Blessed Storied Recipes. Made with love in my cozy cottage kitchen.</p>
-            <p><a href="index.html">Back to My Recipe Collection</a></p>
-        </footer>
+        <div id="story-content">
+          <!-- Story will be dynamically inserted here by JavaScript -->
+        </div>
+
+        <!-- Admin Controls -->
+        <div class="admin-controls" style="margin: 2rem 0; padding: 1rem; border: 1px solid #ddd; border-radius: 4px; background-color: #f9f9f9;">
+          <h4>Image Controls</h4>
+          <button id="regenerate-images-btn" style="padding: 0.5rem 1rem; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Regenerate All Images</button>
+          <p id="regenerate-result" style="margin-top: 0.5rem;"></p>
+        </div>
+
+        <div class="personal-note">
+          <p>
+            I hope you enjoy this recipe as much as my family has for
+            generations! Don't forget to PIN this recipe, SHARE it with your
+            friends, and SUBSCRIBE to my newsletter for more heartwarming
+            stories and delicious recipes! XOXO
+          </p>
+        </div>
+
+        <section id="recipe-details">
+          <div class="recipe-section">
+            <h2>Ingredients</h2>
+            <ul id="ingredients-list">
+              <!-- Ingredients will be loaded here by JavaScript -->
+            </ul>
+          </div>
+          <div class="recipe-section">
+            <h2>Directions</h2>
+            <ol id="instructions-list">
+              <!-- Instructions will be loaded here by JavaScript -->
+            </ol>
+          </div>
+        </section>
+      </main>
+
+      <div class="quote-container">
+        <div class="quote">
+          Bless this food before us, the family beside us, and the love between
+          us
+        </div>
+        <div class="quote-author">~ Cottage Kitchen Blessings</div>
+      </div>
+
+      <footer>
+        <p>
+          &copy; 2025 Blessed Storied Recipes. Made with love in my cozy cottage
+          kitchen.
+        </p>
+        <p><a href="index.html">Back to My Recipe Collection</a></p>
+      </footer>
     </div>
-</body>
+  </body>
 </html>
