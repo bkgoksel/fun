@@ -138,11 +138,17 @@ document.addEventListener("DOMContentLoaded", () => {
       if (part.length > 0) {
         paragraphElement.textContent += part;
 
-        // Only auto-scroll if the user hasn't scrolled up significantly
+        // Check if the viewport is below the bottom of the story content
+        const storyRect = storyContentElement.getBoundingClientRect();
+        const isViewportBelowStory = storyRect.bottom < 0;
+
+        // Only auto-scroll if the user hasn't scrolled up significantly or 
+        // if the viewport is below the bottom of the story
         const isUserNearBottom =
           window.scrollY + window.innerHeight >=
           document.body.offsetHeight - AUTOSCROLL_BOTTOM_THRESHOLD;
-        if (isUserNearBottom) {
+          
+        if (isUserNearBottom || isViewportBelowStory) {
           // Scroll the paragraph into view
           paragraphElement.scrollIntoView({ block: "end", behavior: "auto" });
         }
@@ -184,6 +190,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (percentRendered >= PERCENT_RENDERED_BEFORE_EXPAND && !isRequestingExpansion) {
         requestStoryExpansion();
       }
+      
+      // Check if viewport is still below story section after rendering
+      // and trigger another paragraph render if so
+      checkViewportPositionAndRender();
     } catch (error) {
       console.error("Error rendering paragraph:", error);
     } finally {
@@ -219,32 +229,46 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Add scroll event listener to render more story as user scrolls
-  window.addEventListener("scroll", () => {
-    if (!isRenderingStory) { // Only proceed if not already rendering
-      // Get the position of the story content section
-      const storyRect = storyContentElement.getBoundingClientRect();
+  // Function to check viewport position relative to story section and render if needed
+  function checkViewportPositionAndRender() {
+    if (isRenderingStory) return; // Don't check if already rendering
+    
+    // Get the position of the story content section
+    const storyRect = storyContentElement.getBoundingClientRect();
 
-      // Find the personal-note element which comes after the story content
-      const personalNote = document.querySelector('.personal-note');
-      const recipeDetails = document.getElementById('recipe-details');
+    // Find the personal-note element which comes after the story content
+    const personalNote = document.querySelector('.personal-note');
+    const recipeDetails = document.getElementById('recipe-details');
 
-      if (personalNote) {
-        const personalNoteRect = personalNote.getBoundingClientRect();
-        // If any part of the elements below the story is visible in the viewport
-        // or if we've scrolled past the story section, render more paragraphs
-        if (personalNoteRect.top < window.innerHeight ||
-            (recipeDetails && recipeDetails.getBoundingClientRect().top < window.innerHeight)) {
-          renderNextParagraph();
-        }
-      } else {
-        // Fallback if we can't find the personal note section
-        // Use the original condition as a safety net
-        const storyBottom = storyRect.bottom;
-        if (storyBottom <= window.innerHeight + SCROLL_THRESHOLD) {
-          renderNextParagraph();
-        }
+    // Check if elements below the story are visible in the viewport
+    let shouldRender = false;
+    
+    if (personalNote) {
+      const personalNoteRect = personalNote.getBoundingClientRect();
+      // If any part of the elements below the story is visible in the viewport
+      // or if we've scrolled past the story section, render more paragraphs
+      if (personalNoteRect.top < window.innerHeight ||
+          (recipeDetails && recipeDetails.getBoundingClientRect().top < window.innerHeight)) {
+        shouldRender = true;
+      }
+    } else {
+      // Fallback if we can't find the personal note section
+      // Use the original condition as a safety net
+      const storyBottom = storyRect.bottom;
+      if (storyBottom <= window.innerHeight + SCROLL_THRESHOLD) {
+        shouldRender = true;
       }
     }
+    
+    if (shouldRender) {
+      // Use setTimeout to avoid rendering in the current execution stack
+      // This gives the browser time to update the DOM and render the current paragraph
+      setTimeout(() => renderNextParagraph(), 0);
+    }
+  }
+
+  // Add scroll event listener to render more story as user scrolls
+  window.addEventListener("scroll", () => {
+    checkViewportPositionAndRender();
   });
 });
