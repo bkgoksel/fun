@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const storyContentElement = document.getElementById("story-content");
   const ingredientsListElement = document.getElementById("ingredients-list");
   const instructionsListElement = document.getElementById("instructions-list");
-  const API_BASE_URL = "http://localhost:3000";
-  //"https://xre1rlalkd.execute-api.us-west-2.amazonaws.com/prod";
+  const API_BASE_URL =
+    "https://xre1rlalkd.execute-api.us-west-2.amazonaws.com/prod";
 
   // Determine RECIPE_ID from URL query parameter or use default
   const urlParams = new URLSearchParams(window.location.search);
