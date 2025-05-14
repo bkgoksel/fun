@@ -221,12 +221,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Add scroll event listener to render more story as user scrolls
   window.addEventListener("scroll", () => {
-    if (
-      !isRenderingStory && // Only proceed if not already rendering
-      window.innerHeight + window.scrollY >=
-        document.body.offsetHeight - SCROLL_THRESHOLD
-    ) {
-      renderNextParagraph();
+    if (!isRenderingStory) { // Only proceed if not already rendering
+      // Get the position of the story content section
+      const storyRect = storyContentElement.getBoundingClientRect();
+
+      // Find the personal-note element which comes after the story content
+      const personalNote = document.querySelector('.personal-note');
+      const recipeDetails = document.getElementById('recipe-details');
+
+      if (personalNote) {
+        const personalNoteRect = personalNote.getBoundingClientRect();
+        // If any part of the elements below the story is visible in the viewport
+        // or if we've scrolled past the story section, render more paragraphs
+        if (personalNoteRect.top < window.innerHeight ||
+            (recipeDetails && recipeDetails.getBoundingClientRect().top < window.innerHeight)) {
+          renderNextParagraph();
+        }
+      } else {
+        // Fallback if we can't find the personal note section
+        // Use the original condition as a safety net
+        const storyBottom = storyRect.bottom;
+        if (storyBottom <= window.innerHeight + SCROLL_THRESHOLD) {
+          renderNextParagraph();
+        }
+      }
     }
   });
 });
