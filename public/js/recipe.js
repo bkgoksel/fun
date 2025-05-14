@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const storyContentElement = document.getElementById("story-content");
   const ingredientsListElement = document.getElementById("ingredients-list");
   const instructionsListElement = document.getElementById("instructions-list");
-  const API_BASE_URL =
-    "https://xre1rlalkd.execute-api.us-west-2.amazonaws.com/prod";
+  const API_BASE_URL = "http://localhost:3000";
+  //"https://xre1rlalkd.execute-api.us-west-2.amazonaws.com/prod";
 
   // Determine RECIPE_ID from URL query parameter or use default
   const urlParams = new URLSearchParams(window.location.search);
@@ -34,9 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function fetchRecipeData(recipeId) {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/recipe/${recipeId}`,
-      );
+      const response = await fetch(`${API_BASE_URL}/api/recipe/${recipeId}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -55,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fullStoryText = data.story;
 
         // Store image URLs if available
-        if (data.imageUrls && typeof data.imageUrls === 'object') {
+        if (data.imageUrls && typeof data.imageUrls === "object") {
           recipeImageUrls = data.imageUrls;
           console.log("Loaded image URLs:", recipeImageUrls);
         }
@@ -97,9 +95,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function parseStoryIntoParagraphs(story) {
     // Split the story into paragraphs by newlines or multiple spaces
-    return story.split(/\n+/).flatMap(p =>
-      p.trim() ? p.split(/(?<=\.)\s{2,}/).filter(s => s.trim().length > 0) : []
-    );
+    return story
+      .split(/\n+/)
+      .flatMap((p) =>
+        p.trim()
+          ? p.split(/(?<=\.)\s{2,}/).filter((s) => s.trim().length > 0)
+          : [],
+      );
   }
 
   async function requestStoryExpansion() {
@@ -111,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const response = await fetch(
         `${API_BASE_URL}/api/recipe/${RECIPE_ID}/expand`,
-        { method: 'POST' }
+        { method: "POST" },
       );
 
       if (!response.ok) {
@@ -123,11 +125,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.story) {
         // Update our full story with the expanded version
         fullStoryText = data.story;
-        console.log("Story expanded successfully. New length:", fullStoryText.length);
+        console.log(
+          "Story expanded successfully. New length:",
+          fullStoryText.length,
+        );
 
         // Update image URLs if available
-        if (data.imageUrls && typeof data.imageUrls === 'object') {
-          recipeImageUrls = {...recipeImageUrls, ...data.imageUrls};
+        if (data.imageUrls && typeof data.imageUrls === "object") {
+          recipeImageUrls = { ...recipeImageUrls, ...data.imageUrls };
           console.log("Updated image URLs:", recipeImageUrls);
         }
 
@@ -149,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const response = await fetch(
         `${API_BASE_URL}/api/recipe/${RECIPE_ID}/generate-images`,
-        { method: 'POST' }
+        { method: "POST" },
       );
 
       if (!response.ok) {
@@ -158,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const data = await response.json();
 
-      if (data.allImageUrls && typeof data.allImageUrls === 'object') {
+      if (data.allImageUrls && typeof data.allImageUrls === "object") {
         // Update our image URLs with the latest from the server
         recipeImageUrls = data.allImageUrls;
         console.log("Generated/updated image URLs:", recipeImageUrls);
@@ -176,7 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/recipe/${RECIPE_ID}/image/${paragraphIndex}`
+        `${API_BASE_URL}/api/recipe/${RECIPE_ID}/image/${paragraphIndex}`,
       );
 
       if (!response.ok) {
@@ -194,7 +199,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return null;
       }
     } catch (error) {
-      console.error(`Error fetching image for paragraph ${paragraphIndex}:`, error);
+      console.error(
+        `Error fetching image for paragraph ${paragraphIndex}:`,
+        error,
+      );
       return null;
     }
   }
@@ -208,7 +216,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (
       paragraphElement.textContent.length > 0 &&
       text[0] !== " " &&
-      paragraphElement.textContent[paragraphElement.textContent.length - 1] !== " "
+      paragraphElement.textContent[paragraphElement.textContent.length - 1] !==
+        " "
     ) {
       text = " " + text;
     }
@@ -223,12 +232,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const storyRect = storyContentElement.getBoundingClientRect();
         const isViewportBelowStory = storyRect.bottom < 0;
 
-        // Only auto-scroll if the user hasn't scrolled up significantly or 
+        // Only auto-scroll if the user hasn't scrolled up significantly or
         // if the viewport is below the bottom of the story
         const isUserNearBottom =
           window.scrollY + window.innerHeight >=
           document.body.offsetHeight - AUTOSCROLL_BOTTOM_THRESHOLD;
-          
+
         if (isUserNearBottom || isViewportBelowStory) {
           // Scroll the paragraph into view
           paragraphElement.scrollIntoView({ block: "end", behavior: "auto" });
@@ -252,15 +261,14 @@ document.addEventListener("DOMContentLoaded", () => {
     img.dataset.paragraphIndex = paragraphIndex;
 
     // Add error handling for images
-    img.onerror = function() {
+    img.onerror = function () {
       console.warn(`Image failed to load: ${imageUrl}. Requesting new image.`);
       // Request a new image when load fails
-      fetchImageForParagraph(paragraphIndex, true)
-        .then(newImageUrl => {
-          if (newImageUrl) {
-            img.src = newImageUrl;
-          }
-        });
+      fetchImageForParagraph(paragraphIndex, true).then((newImageUrl) => {
+        if (newImageUrl) {
+          img.src = newImageUrl;
+        }
+      });
     };
 
     imgContainer.appendChild(img);
@@ -283,7 +291,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (renderedParagraphs >= paragraphs.length) {
       // All paragraphs rendered, check if we need to request more
       const percentRendered = 100;
-      if (percentRendered >= PERCENT_RENDERED_BEFORE_EXPAND && !isRequestingExpansion) {
+      if (
+        percentRendered >= PERCENT_RENDERED_BEFORE_EXPAND &&
+        !isRequestingExpansion
+      ) {
         requestStoryExpansion();
       }
       return;
@@ -300,7 +311,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Check if we need to insert an image after this paragraph
       // We want to insert after paragraph indices 2, 5, 8, etc. (0-indexed)
-      if (renderedParagraphs > 0 && renderedParagraphs % PARAGRAPHS_PER_IMAGE === (PARAGRAPHS_PER_IMAGE - 1)) {
+      if (
+        renderedParagraphs > 0 &&
+        renderedParagraphs % PARAGRAPHS_PER_IMAGE === PARAGRAPHS_PER_IMAGE - 1
+      ) {
         // Check if we already have an image URL for this paragraph
         let imageUrl = recipeImageUrls[renderedParagraphs];
 
@@ -319,11 +333,16 @@ document.addEventListener("DOMContentLoaded", () => {
       renderedParagraphs++;
 
       // Check if we need to request more content from the backend
-      const percentRendered = Math.floor((renderedParagraphs / paragraphs.length) * 100);
-      if (percentRendered >= PERCENT_RENDERED_BEFORE_EXPAND && !isRequestingExpansion) {
+      const percentRendered = Math.floor(
+        (renderedParagraphs / paragraphs.length) * 100,
+      );
+      if (
+        percentRendered >= PERCENT_RENDERED_BEFORE_EXPAND &&
+        !isRequestingExpansion
+      ) {
         requestStoryExpansion();
       }
-      
+
       // Check if viewport is still below story section after rendering
       // and trigger another paragraph render if so
       checkViewportPositionAndRender();
@@ -334,71 +353,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Set up admin controls
-  setupAdminControls();
-
   // Load initial data
   fetchRecipeData(RECIPE_ID);
 
-  // Functions to render ingredients and instructions
-
-  // Function to setup admin controls for image regeneration
-  function setupAdminControls() {
-    const regenerateImagesBtn = document.getElementById('regenerate-images-btn');
-    if (!regenerateImagesBtn) return;
-
-    regenerateImagesBtn.addEventListener('click', async () => {
-      try {
-        const resultElement = document.getElementById('regenerate-result');
-        resultElement.textContent = "Regenerating images...";
-        resultElement.style.color = "";
-
-        // Call the generate-images endpoint
-        const response = await fetch(
-          `${API_BASE_URL}/api/recipe/${RECIPE_ID}/generate-images`,
-          { method: 'POST' }
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        // Update image URLs with the newly generated ones
-        if (data.allImageUrls) {
-          recipeImageUrls = data.allImageUrls;
-
-          // Update any displayed images with new URLs
-          const storyImages = document.querySelectorAll('.story-image');
-          storyImages.forEach(img => {
-            const paragraphIndex = img.dataset.paragraphIndex;
-            if (paragraphIndex && recipeImageUrls[paragraphIndex]) {
-              img.src = recipeImageUrls[paragraphIndex];
-            }
-          });
-
-          resultElement.textContent = `Successfully regenerated ${Object.keys(data.generatedImages || {}).length} images!`;
-          resultElement.style.color = "green";
-        } else {
-          resultElement.textContent = "No images were regenerated. Try again later.";
-          resultElement.style.color = "orange";
-        }
-      } catch (error) {
-        console.error('Error regenerating images:', error);
-        const resultElement = document.getElementById('regenerate-result');
-        resultElement.textContent = `Error: ${error.message}`;
-        resultElement.style.color = "red";
-      }
-    });
-  }
   function renderIngredients(ingredients) {
     // Clear any existing content
-    ingredientsListElement.innerHTML = '';
+    ingredientsListElement.innerHTML = "";
 
     // Add each ingredient as a list item
-    ingredients.forEach(ingredient => {
-      const li = document.createElement('li');
+    ingredients.forEach((ingredient) => {
+      const li = document.createElement("li");
       li.textContent = ingredient;
       ingredientsListElement.appendChild(li);
     });
@@ -406,11 +370,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderInstructions(instructions) {
     // Clear any existing content
-    instructionsListElement.innerHTML = '';
+    instructionsListElement.innerHTML = "";
 
     // Add each instruction as a list item
-    instructions.forEach(instruction => {
-      const li = document.createElement('li');
+    instructions.forEach((instruction) => {
+      const li = document.createElement("li");
       li.textContent = instruction;
       instructionsListElement.appendChild(li);
     });
@@ -419,23 +383,26 @@ document.addEventListener("DOMContentLoaded", () => {
   // Function to check viewport position relative to story section and render if needed
   function checkViewportPositionAndRender() {
     if (isRenderingStory) return; // Don't check if already rendering
-    
+
     // Get the position of the story content section
     const storyRect = storyContentElement.getBoundingClientRect();
 
     // Find the personal-note element which comes after the story content
-    const personalNote = document.querySelector('.personal-note');
-    const recipeDetails = document.getElementById('recipe-details');
+    const personalNote = document.querySelector(".personal-note");
+    const recipeDetails = document.getElementById("recipe-details");
 
     // Check if elements below the story are visible in the viewport
     let shouldRender = false;
-    
+
     if (personalNote) {
       const personalNoteRect = personalNote.getBoundingClientRect();
       // If any part of the elements below the story is visible in the viewport
       // or if we've scrolled past the story section, render more paragraphs
-      if (personalNoteRect.top < window.innerHeight ||
-          (recipeDetails && recipeDetails.getBoundingClientRect().top < window.innerHeight)) {
+      if (
+        personalNoteRect.top < window.innerHeight ||
+        (recipeDetails &&
+          recipeDetails.getBoundingClientRect().top < window.innerHeight)
+      ) {
         shouldRender = true;
       }
     } else {
@@ -446,7 +413,7 @@ document.addEventListener("DOMContentLoaded", () => {
         shouldRender = true;
       }
     }
-    
+
     if (shouldRender) {
       // Use setTimeout to avoid rendering in the current execution stack
       // This gives the browser time to update the DOM and render the current paragraph

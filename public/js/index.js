@@ -9,9 +9,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // Setup admin functionality
-  setupAdminControls();
-
   try {
     const response = await fetch(`${API_BASE_URL}/api/recipes`);
     if (!response.ok) {
@@ -40,39 +37,3 @@ document.addEventListener("DOMContentLoaded", async () => {
       "<li>Could not load recipes. Please try again later.</li>";
   }
 });
-
-// Function to setup admin controls
-function setupAdminControls() {
-  const flushCacheBtn = document.getElementById('flush-cache-btn');
-  if (!flushCacheBtn) return;
-
-  flushCacheBtn.addEventListener('click', async () => {
-    try {
-      const resultElement = document.getElementById('flush-result');
-      resultElement.textContent = "Flushing cache...";
-      resultElement.style.color = "";
-
-      const response = await fetch('/api/flush-cache', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        resultElement.textContent = "Cache flushed successfully! Refresh the page to see updated content.";
-        resultElement.style.color = "green";
-      } else {
-        resultElement.textContent = `Error: ${data.message || 'Failed to flush cache'}`;
-        resultElement.style.color = "red";
-      }
-    } catch (error) {
-      console.error('Error flushing cache:', error);
-      const resultElement = document.getElementById('flush-result');
-      resultElement.textContent = `Error: ${error.message}`;
-      resultElement.style.color = "red";
-    }
-  });
-}
